@@ -1,0 +1,12 @@
+<resources>
+    <!--
+        Tema base de la Activity, solo para el primer frame antes de que Compose
+        tome el control (evita un flash blanco/negro incorrecto al abrir la app).
+        El theming real (Material 3, claro/oscuro/sistema) vive en ui/theme/Theme.kt.
+    -->
+    <style name="Theme.Nexora" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#FCFDFF</item>
+        <item name="android:statusBarColor">#00000000</item>
+        <item name="android:navigationBarColor">#00000000</item>
+    </style>
+</resources>

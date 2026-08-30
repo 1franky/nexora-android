@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Roboto:wght@400;500&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Roboto', system-ui, sans-serif; }
+    a { color: #6BA6EE; }
+    a:hover { color: #9DBFEF; }
+    .num { font-family: 'Space Grotesk', 'Roboto', sans-serif; }
+    .field { background: #141A2B; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 14px 16px; }
+    .field-label { font-size: 12px; color: #7C879E; margin-bottom: 4px; }
+    .field-value { font-size: 15px; color: #F4F6FB; }
+    .field-placeholder { font-size: 15px; color: #4C5468; }
+  </style>
+</helmet>
+
+<div style="width:390px;height:844px;background:#0B0F1A;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+
+  <div style="flex:1;"></div>
+
+  <!-- Brand -->
+  <div style="padding:0 32px;display:flex;flex-direction:column;align-items:center;">
+    <div style="width:64px;height:64px;border-radius:20px;background:#16264A;border:1px solid rgba(57,135,229,0.3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:35px;background:radial-gradient(circle,rgba(57,135,229,0.35),transparent 70%);"></div>
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6BA6EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:relative;"><path d="M3 17l6-6 4 4 7-8"/><path d="M15 7h5v5"/></svg>
+    </div>
+    <div class="num" style="margin-top:18px;font-size:28px;font-weight:700;color:#F4F6FB;letter-spacing:-0.01em;">Nexora</div>
+    <div style="margin-top:6px;font-size:14px;color:#7C879E;">Tus finanzas, claras.</div>
+  </div>
+
+  <!-- Form -->
+  <div style="padding:36px 24px 0;display:flex;flex-direction:column;gap:14px;">
+
+    <div class="field">
+      <div class="field-label">Email</div>
+      <div class="field-placeholder">tucorreo@ejemplo.com</div>
+    </div>
+
+    <div class="field" style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div class="field-label">Contraseña</div>
+        <div class="field-value">••••••••••</div>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7C879E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>
+
+    <div style="height:52px;border-radius:14px;background:#3987E5;display:flex;align-items:center;justify-content:center;margin-top:8px;">
+      <div style="font-size:15px;font-weight:700;color:#0B0F1A;">Entrar</div>
+    </div>
+
+  </div>
+
+  <div style="flex:1;"></div>
+
+  <!-- Footer -->
+  <div style="padding:0 24px 40px;text-align:center;">
+    <span style="font-size:13px;color:#7C879E;">¿No tienes cuenta? </span><a href="#" style="font-size:13px;font-weight:600;text-decoration:none;">Crear una cuenta</a>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
