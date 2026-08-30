@@ -173,9 +173,13 @@
     <string name="installments_dialog_description">Descripción</string>
     <string name="installments_dialog_submit">Registrar</string>
 
-    <!-- Placeholder (módulos todavía no implementados) -->
-    <string name="coming_soon_title">Próximamente</string>
-    <string name="coming_soon_message">Este módulo todavía está en construcción.</string>
+    <!-- Notificaciones (A7) -->
+    <string name="notifications_title">Notificaciones</string>
+    <string name="notifications_mark_all_read">Marcar todas como leídas</string>
+    <string name="notifications_empty">No tienes notificaciones por ahora.</string>
+    <string name="notifications_load_error">No se pudieron cargar tus notificaciones.</string>
+    <string name="notifications_unread">No leída</string>
+
 
     <!-- Logout -->
     <string name="logout">Cerrar sesión</string>
