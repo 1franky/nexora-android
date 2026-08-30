@@ -45,6 +45,30 @@
     <string name="dashboard_load_error">No se pudo cargar el dashboard.</string>
     <string name="retry">Reintentar</string>
 
+    <!-- Movimientos (A3) -->
+    <string name="transactions_title">Movimientos</string>
+    <string name="transactions_all_accounts">Todas las cuentas</string>
+    <string name="transactions_empty">Todavía no hay movimientos.</string>
+    <string name="transactions_load_error">No se pudieron cargar los movimientos.</string>
+    <string name="transactions_new">Nuevo movimiento</string>
+    <string name="transactions_amount">Monto</string>
+    <string name="transactions_account">Cuenta</string>
+    <string name="transactions_date">Fecha</string>
+    <string name="transactions_category">Categoría</string>
+    <string name="transactions_category_none">Sin categoría</string>
+    <string name="transactions_category_new">+ Nueva categoría…</string>
+    <string name="transactions_to_account">Cuenta destino</string>
+    <string name="transactions_description">Descripción (opcional)</string>
+    <string name="transactions_save">Guardar</string>
+    <string name="transactions_kind_expense">Gasto</string>
+    <string name="transactions_kind_income">Ingreso</string>
+    <string name="transactions_kind_transfer">Transferir</string>
+    <string name="transactions_no_other_accounts">Necesitas otra cuenta activa para transferir.</string>
+    <string name="transactions_filter_content_description">Filtrar por cuenta</string>
+    <string name="new_category_dialog_title">Nueva categoría</string>
+    <string name="new_category_dialog_name">Nombre</string>
+    <string name="new_category_dialog_create">Crear</string>
+
     <!-- Placeholder (módulos todavía no implementados) -->
     <string name="coming_soon_title">Próximamente</string>
     <string name="coming_soon_message">Este módulo todavía está en construcción.</string>
