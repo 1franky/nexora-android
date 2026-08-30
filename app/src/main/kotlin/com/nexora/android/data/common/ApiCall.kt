@@ -31,7 +31,9 @@ suspend fun <T> apiCall(fallbackMessage: String, block: suspend () -> T): T {
     }
 }
 
-private fun extractMessage(errorBody: ResponseBody?): String? {
+/** Visible a las funciones inline de data.offline (cachedApiCall, writeCall): mismo formato de error. */
+@PublishedApi
+internal fun extractMessage(errorBody: ResponseBody?): String? {
     val raw = errorBody?.string() ?: return null
     return try {
         lenientJson.decodeFromString(ApiErrorBody.serializer(), raw).message

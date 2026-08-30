@@ -19,11 +19,19 @@ import com.nexora.android.data.installment.InstallmentApi
 import com.nexora.android.data.installment.InstallmentRepository
 import com.nexora.android.data.notification.NotificationApi
 import com.nexora.android.data.notification.NotificationRepository
+import com.nexora.android.data.offline.ConnectivityObserver
+import com.nexora.android.data.offline.OfflineCache
+import com.nexora.android.data.offline.OfflineDatabase
 import com.nexora.android.data.transaction.TransactionApi
 import com.nexora.android.data.transaction.TransactionRepository
 import com.nexora.android.data.user.UserRepository
 import com.nexora.android.data.user.UsersApi
+import com.nexora.android.sync.SyncScheduler
 import com.nexora.android.ui.theme.ThemePreference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -38,13 +46,17 @@ import retrofit2.create
  * compilación fallida por una dependencia beta) a cambio de un poco de
  * cableado explícito aquí. Migrar a Hilt más adelante es un cambio
  * localizado a este archivo si el proyecto lo justifica.
+ *
+ * (Room sí usa KSP desde A8, para el caché offline — la razón de arriba ya
+ * no aplica a esa dependencia puntual porque Room no tiene alternativa
+ * manual razonable; solo se evitó agregar Hilt encima.)
  */
 class AppContainer(context: Context) {
 
     val tokenStore = TokenStore(context.applicationContext)
     val themePreference = ThemePreference(context.applicationContext)
 
-    private val json = Json { ignoreUnknownKeys = true }
+    val json = Json { ignoreUnknownKeys = true }
     private val jsonConverterFactory = json.asConverterFactory("application/json".toMediaType())
 
     private fun loggingInterceptor() = HttpLoggingInterceptor().apply {
@@ -80,20 +92,43 @@ class AppContainer(context: Context) {
     private val authApi: AuthApi = retrofit.create()
     private val usersApi: UsersApi = retrofit.create()
     private val dashboardApi: DashboardApi = retrofit.create()
-    private val accountApi: AccountApi = retrofit.create()
     private val categoryApi: CategoryApi = retrofit.create()
-    private val transactionApi: TransactionApi = retrofit.create()
-    private val creditCardApi: CreditCardApi = retrofit.create()
-    private val installmentApi: InstallmentApi = retrofit.create()
     private val notificationApi: NotificationApi = retrofit.create()
+
+    // Públicas (no solo `private val`): SyncWorker las necesita para reintentar
+    // escrituras encoladas fuera de cualquier repositorio (ver NexoraWorkerFactory).
+    val accountApi: AccountApi = retrofit.create()
+    val transactionApi: TransactionApi = retrofit.create()
+    val creditCardApi: CreditCardApi = retrofit.create()
+    val installmentApi: InstallmentApi = retrofit.create()
+
+    // --- Offline (A8): caché de lecturas + cola de escrituras pendientes ---
+
+    private val offlineDatabase = OfflineDatabase.build(context)
+    val pendingOperationDao = offlineDatabase.pendingOperationDao()
+    private val offlineCache = OfflineCache(offlineDatabase.cachedResponseDao(), json)
+
+    val connectivityObserver = ConnectivityObserver(context)
+    val syncScheduler = SyncScheduler(context.applicationContext)
+
+    /** Vive mientras viva el proceso: solo reacciona a conectividad y dispara sync, nada que cancelar. */
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    init {
+        connectivityObserver.start()
+        syncScheduler.schedulePeriodicSync()
+        applicationScope.launch {
+            connectivityObserver.isOnline.collect { online -> if (online) syncScheduler.requestSync() }
+        }
+    }
 
     val authRepository = AuthRepository(authApi, usersApi, tokenStore)
     val userRepository = UserRepository(usersApi)
-    val dashboardRepository = DashboardRepository(dashboardApi)
-    val accountRepository = AccountRepository(accountApi)
-    val categoryRepository = CategoryRepository(categoryApi)
-    val transactionRepository = TransactionRepository(transactionApi)
-    val creditCardRepository = CreditCardRepository(creditCardApi)
-    val installmentRepository = InstallmentRepository(installmentApi)
+    val dashboardRepository = DashboardRepository(dashboardApi, offlineCache)
+    val accountRepository = AccountRepository(accountApi, offlineCache, pendingOperationDao, syncScheduler, json)
+    val categoryRepository = CategoryRepository(categoryApi, offlineCache)
+    val transactionRepository = TransactionRepository(transactionApi, offlineCache, pendingOperationDao, syncScheduler, json)
+    val creditCardRepository = CreditCardRepository(creditCardApi, offlineCache, pendingOperationDao, syncScheduler, json)
+    val installmentRepository = InstallmentRepository(installmentApi, offlineCache, pendingOperationDao, syncScheduler, json)
     val notificationRepository = NotificationRepository(notificationApi)
 }

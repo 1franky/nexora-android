@@ -1,6 +1,7 @@
 package com.nexora.android.ui.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,6 +25,7 @@ import com.nexora.android.ui.accounts.AccountsScreen
 import com.nexora.android.ui.cards.CardDetailScreen
 import com.nexora.android.ui.cards.CardsScreen
 import com.nexora.android.ui.components.NexoraBottomBar
+import com.nexora.android.ui.components.OfflineBanner
 import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.login.LoginScreen
 import com.nexora.android.ui.notifications.NotificationsScreen
@@ -84,69 +86,74 @@ private fun AuthenticatedAwareNavHost(
             }
         },
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = if (startAuthenticated) NexoraDestination.Dashboard.route else NexoraDestination.Login.route,
-            modifier = Modifier.padding(innerPadding),
-        ) {
-            composable(NexoraDestination.Login.route) {
-                LoginScreen(
-                    authRepository = container.authRepository,
-                    onNavigateToRegister = { navController.navigate(NexoraDestination.Register.route) },
-                )
+        Column(Modifier.padding(innerPadding).fillMaxSize()) {
+            if (isAuthenticated == true) {
+                OfflineBanner(connectivityObserver = container.connectivityObserver, pendingOperationDao = container.pendingOperationDao)
             }
-            composable(NexoraDestination.Register.route) {
-                RegisterScreen(
-                    authRepository = container.authRepository,
-                    onNavigateBack = { navController.popBackStack() },
-                )
-            }
-            composable(NexoraDestination.Dashboard.route) {
-                DashboardScreen(
-                    dashboardRepository = container.dashboardRepository,
-                    userRepository = container.userRepository,
-                    authRepository = container.authRepository,
-                    onNavigateToAccounts = { navController.navigate(NexoraDestination.Accounts.route) },
-                )
-            }
-            composable(NexoraDestination.Accounts.route) {
-                AccountsScreen(
-                    accountRepository = container.accountRepository,
-                    onNavigateBack = { navController.popBackStack() },
-                )
-            }
-            composable(NexoraDestination.Transactions.route) {
-                TransactionsScreen(
-                    transactionRepository = container.transactionRepository,
-                    accountRepository = container.accountRepository,
-                    categoryRepository = container.categoryRepository,
-                )
-            }
-            composable(NexoraDestination.Cards.route) {
-                CardsScreen(
-                    creditCardRepository = container.creditCardRepository,
-                    onCardClick = { cardId -> navController.navigate(NexoraDestination.CardDetail.routeFor(cardId)) },
-                )
-            }
-            composable(
-                route = NexoraDestination.CardDetail.route,
-                arguments = listOf(navArgument("cardId") { type = NavType.StringType }),
-            ) { backStackEntry ->
-                val cardId = backStackEntry.arguments?.getString("cardId")
-                if (cardId != null) {
-                    CardDetailScreen(
-                        cardId = cardId,
-                        creditCardRepository = container.creditCardRepository,
-                        transactionRepository = container.transactionRepository,
-                        categoryRepository = container.categoryRepository,
-                        accountRepository = container.accountRepository,
-                        installmentRepository = container.installmentRepository,
+            NavHost(
+                navController = navController,
+                startDestination = if (startAuthenticated) NexoraDestination.Dashboard.route else NexoraDestination.Login.route,
+                modifier = Modifier.weight(1f),
+            ) {
+                composable(NexoraDestination.Login.route) {
+                    LoginScreen(
+                        authRepository = container.authRepository,
+                        onNavigateToRegister = { navController.navigate(NexoraDestination.Register.route) },
+                    )
+                }
+                composable(NexoraDestination.Register.route) {
+                    RegisterScreen(
+                        authRepository = container.authRepository,
                         onNavigateBack = { navController.popBackStack() },
                     )
                 }
-            }
-            composable(NexoraDestination.Notifications.route) {
-                NotificationsScreen(notificationRepository = container.notificationRepository)
+                composable(NexoraDestination.Dashboard.route) {
+                    DashboardScreen(
+                        dashboardRepository = container.dashboardRepository,
+                        userRepository = container.userRepository,
+                        authRepository = container.authRepository,
+                        onNavigateToAccounts = { navController.navigate(NexoraDestination.Accounts.route) },
+                    )
+                }
+                composable(NexoraDestination.Accounts.route) {
+                    AccountsScreen(
+                        accountRepository = container.accountRepository,
+                        onNavigateBack = { navController.popBackStack() },
+                    )
+                }
+                composable(NexoraDestination.Transactions.route) {
+                    TransactionsScreen(
+                        transactionRepository = container.transactionRepository,
+                        accountRepository = container.accountRepository,
+                        categoryRepository = container.categoryRepository,
+                    )
+                }
+                composable(NexoraDestination.Cards.route) {
+                    CardsScreen(
+                        creditCardRepository = container.creditCardRepository,
+                        onCardClick = { cardId -> navController.navigate(NexoraDestination.CardDetail.routeFor(cardId)) },
+                    )
+                }
+                composable(
+                    route = NexoraDestination.CardDetail.route,
+                    arguments = listOf(navArgument("cardId") { type = NavType.StringType }),
+                ) { backStackEntry ->
+                    val cardId = backStackEntry.arguments?.getString("cardId")
+                    if (cardId != null) {
+                        CardDetailScreen(
+                            cardId = cardId,
+                            creditCardRepository = container.creditCardRepository,
+                            transactionRepository = container.transactionRepository,
+                            categoryRepository = container.categoryRepository,
+                            accountRepository = container.accountRepository,
+                            installmentRepository = container.installmentRepository,
+                            onNavigateBack = { navController.popBackStack() },
+                        )
+                    }
+                }
+                composable(NexoraDestination.Notifications.route) {
+                    NotificationsScreen(notificationRepository = container.notificationRepository)
+                }
             }
         }
     }

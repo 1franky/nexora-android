@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.nexora.android.data.common.ApiException
 import com.nexora.android.data.installment.InstallmentPlan
 import com.nexora.android.data.installment.InstallmentRepository
+import com.nexora.android.data.offline.WriteOutcome
 import kotlinx.coroutines.launch
 
 sealed interface InstallmentPlansUiState {
@@ -58,10 +59,17 @@ class InstallmentPlansViewModel(
         payError = null
         viewModelScope.launch {
             try {
-                val updatedPlan = installmentRepository.payInstallment(planId, installmentId, fallbackError)
-                uiState = InstallmentPlansUiState.Success(
-                    current.plans.map { if (it.id == updatedPlan.id) updatedPlan else it },
-                )
+                when (val outcome = installmentRepository.payInstallment(planId, installmentId, fallbackError)) {
+                    is WriteOutcome.Applied -> {
+                        val updatedPlan = outcome.value
+                        uiState = InstallmentPlansUiState.Success(
+                            current.plans.map { if (it.id == updatedPlan.id) updatedPlan else it },
+                        )
+                    }
+                    // Sin conexión: queda pendiente de sincronizar (banner global). No se sabe el
+                    // saldo/estado real hasta que el backend la procese — no se toca la lista.
+                    WriteOutcome.Queued -> Unit
+                }
             } catch (e: ApiException) {
                 payError = e.message ?: fallbackError
             } finally {
