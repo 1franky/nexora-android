@@ -7,8 +7,14 @@ import com.nexora.android.data.auth.AuthAuthenticator
 import com.nexora.android.data.auth.AuthInterceptor
 import com.nexora.android.data.auth.AuthRepository
 import com.nexora.android.data.auth.TokenStore
+import com.nexora.android.data.account.AccountApi
+import com.nexora.android.data.account.AccountRepository
+import com.nexora.android.data.category.CategoryApi
+import com.nexora.android.data.category.CategoryRepository
 import com.nexora.android.data.dashboard.DashboardApi
 import com.nexora.android.data.dashboard.DashboardRepository
+import com.nexora.android.data.transaction.TransactionApi
+import com.nexora.android.data.transaction.TransactionRepository
 import com.nexora.android.data.user.UserRepository
 import com.nexora.android.data.user.UsersApi
 import com.nexora.android.ui.theme.ThemePreference
@@ -68,8 +74,14 @@ class AppContainer(context: Context) {
     private val authApi: AuthApi = retrofit.create()
     private val usersApi: UsersApi = retrofit.create()
     private val dashboardApi: DashboardApi = retrofit.create()
+    private val accountApi: AccountApi = retrofit.create()
+    private val categoryApi: CategoryApi = retrofit.create()
+    private val transactionApi: TransactionApi = retrofit.create()
 
     val authRepository = AuthRepository(authApi, usersApi, tokenStore)
     val userRepository = UserRepository(usersApi)
     val dashboardRepository = DashboardRepository(dashboardApi)
+    val accountRepository = AccountRepository(accountApi)
+    val categoryRepository = CategoryRepository(categoryApi)
+    val transactionRepository = TransactionRepository(transactionApi)
 }

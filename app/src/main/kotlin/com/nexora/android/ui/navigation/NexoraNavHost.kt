@@ -23,6 +23,7 @@ import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.login.LoginScreen
 import com.nexora.android.ui.placeholder.ComingSoonScreen
 import com.nexora.android.ui.register.RegisterScreen
+import com.nexora.android.ui.transactions.TransactionsScreen
 
 /**
  * Un único NavHost; qué se ve depende de isAuthenticated (fuente de verdad:
@@ -102,7 +103,13 @@ private fun AuthenticatedAwareNavHost(
                     authRepository = container.authRepository,
                 )
             }
-            composable(NexoraDestination.Transactions.route) { ComingSoonScreen() }
+            composable(NexoraDestination.Transactions.route) {
+                TransactionsScreen(
+                    transactionRepository = container.transactionRepository,
+                    accountRepository = container.accountRepository,
+                    categoryRepository = container.categoryRepository,
+                )
+            }
             composable(NexoraDestination.Cards.route) { ComingSoonScreen() }
             composable(NexoraDestination.Notifications.route) { ComingSoonScreen() }
         }
