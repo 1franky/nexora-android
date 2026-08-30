@@ -21,11 +21,13 @@ class NexoraWorkerFactory(private val container: AppContainer) : WorkerFactory()
                 appContext,
                 workerParameters,
                 container.pendingOperationDao,
-                container.json,
-                container.accountApi,
-                container.creditCardApi,
-                container.transactionApi,
-                container.installmentApi,
+                OperationDispatcher(
+                    container.json,
+                    container.accountApi,
+                    container.creditCardApi,
+                    container.transactionApi,
+                    container.installmentApi,
+                ),
             )
             else -> null
         }

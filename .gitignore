@@ -6,6 +6,11 @@ app/build/
 # Local config (rutas de máquina, nunca se sube)
 local.properties
 
+# Firma de release (A9) — nunca se sube; ver keystore.properties.example
+keystore.properties
+*.keystore
+*.jks
+
 # Android Studio / IntelliJ
 .idea/
 *.iml
