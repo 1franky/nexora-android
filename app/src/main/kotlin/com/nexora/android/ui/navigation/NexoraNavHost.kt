@@ -26,7 +26,7 @@ import com.nexora.android.ui.cards.CardsScreen
 import com.nexora.android.ui.components.NexoraBottomBar
 import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.login.LoginScreen
-import com.nexora.android.ui.placeholder.ComingSoonScreen
+import com.nexora.android.ui.notifications.NotificationsScreen
 import com.nexora.android.ui.register.RegisterScreen
 import com.nexora.android.ui.transactions.TransactionsScreen
 
@@ -145,7 +145,9 @@ private fun AuthenticatedAwareNavHost(
                     )
                 }
             }
-            composable(NexoraDestination.Notifications.route) { ComingSoonScreen() }
+            composable(NexoraDestination.Notifications.route) {
+                NotificationsScreen(notificationRepository = container.notificationRepository)
+            }
         }
     }
 }
