@@ -180,6 +180,11 @@
     <string name="notifications_load_error">No se pudieron cargar tus notificaciones.</string>
     <string name="notifications_unread">No leída</string>
 
+    <!-- Sincronización offline (A8) -->
+    <string name="sync_offline_banner">Sin conexión — tus cambios se guardan y se sincronizan solos.</string>
+    <string name="sync_pending_banner">Sincronizando %1$d cambio(s)…</string>
+    <string name="sync_failed_banner">%1$d cambio(s) no se pudieron sincronizar.</string>
+    <string name="sync_discard_failed">Descartar</string>
 
     <!-- Logout -->
     <string name="logout">Cerrar sesión</string>
