@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nexora.android.di.AppContainer
+import com.nexora.android.ui.accounts.AccountsScreen
 import com.nexora.android.ui.components.NexoraBottomBar
 import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.login.LoginScreen
@@ -101,6 +102,13 @@ private fun AuthenticatedAwareNavHost(
                     dashboardRepository = container.dashboardRepository,
                     userRepository = container.userRepository,
                     authRepository = container.authRepository,
+                    onNavigateToAccounts = { navController.navigate(NexoraDestination.Accounts.route) },
+                )
+            }
+            composable(NexoraDestination.Accounts.route) {
+                AccountsScreen(
+                    accountRepository = container.accountRepository,
+                    onNavigateBack = { navController.popBackStack() },
                 )
             }
             composable(NexoraDestination.Transactions.route) {

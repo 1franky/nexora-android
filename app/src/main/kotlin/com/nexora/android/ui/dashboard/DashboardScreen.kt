@@ -1,6 +1,7 @@
 package com.nexora.android.ui.dashboard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +53,7 @@ fun DashboardScreen(
     dashboardRepository: DashboardRepository,
     userRepository: UserRepository,
     authRepository: AuthRepository,
+    onNavigateToAccounts: () -> Unit,
 ) {
     val viewModel: DashboardViewModel = viewModel(
         factory = viewModelFactory { initializer { DashboardViewModel(dashboardRepository, userRepository, authRepository) } },
@@ -74,12 +76,16 @@ fun DashboardScreen(
                 Text(stringResource(R.string.retry))
             }
         }
-        is DashboardUiState.Success -> DashboardContent(state.data, onLogout = viewModel::logout)
+        is DashboardUiState.Success -> DashboardContent(
+            data = state.data,
+            onLogout = viewModel::logout,
+            onNavigateToAccounts = onNavigateToAccounts,
+        )
     }
 }
 
 @Composable
-private fun DashboardContent(data: DashboardData, onLogout: () -> Unit) {
+private fun DashboardContent(data: DashboardData, onLogout: () -> Unit, onNavigateToAccounts: () -> Unit) {
     val dashboard = data.dashboard
 
     Column(
@@ -109,7 +115,7 @@ private fun DashboardContent(data: DashboardData, onLogout: () -> Unit) {
                 label = stringResource(R.string.dashboard_available),
                 value = formatCurrency(dashboard.availableBalance),
                 accent = true,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable(onClick = onNavigateToAccounts),
             )
             StatCard(
                 label = stringResource(R.string.dashboard_debt),
