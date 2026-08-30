@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.EventRepeat
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,6 +50,7 @@ import com.nexora.android.data.account.AccountType
 import com.nexora.android.data.category.Category
 import com.nexora.android.data.category.CategoryRepository
 import com.nexora.android.data.creditcard.CreditCardRepository
+import com.nexora.android.data.installment.InstallmentRepository
 import com.nexora.android.data.transaction.Transaction
 import com.nexora.android.data.transaction.TransactionRepository
 import com.nexora.android.data.transaction.TransactionType
@@ -63,6 +65,7 @@ fun CardDetailScreen(
     transactionRepository: TransactionRepository,
     categoryRepository: CategoryRepository,
     accountRepository: AccountRepository,
+    installmentRepository: InstallmentRepository,
     onNavigateBack: () -> Unit,
 ) {
     val viewModel: CardDetailViewModel = viewModel(
@@ -70,11 +73,19 @@ fun CardDetailScreen(
             initializer { CardDetailViewModel(cardId, creditCardRepository, transactionRepository, categoryRepository, accountRepository) }
         },
     )
+    val installmentPlansViewModel: InstallmentPlansViewModel = viewModel(
+        factory = viewModelFactory { initializer { InstallmentPlansViewModel(cardId, installmentRepository) } },
+    )
     val fallbackError = stringResource(R.string.cards_detail_not_found)
-    LaunchedEffect(Unit) { viewModel.load(fallbackError) }
+    val installmentsFallbackError = stringResource(R.string.installments_load_error)
+    LaunchedEffect(Unit) {
+        viewModel.load(fallbackError)
+        installmentPlansViewModel.load(installmentsFallbackError)
+    }
 
     var showPurchaseSheet by remember { mutableStateOf(false) }
     var showPaymentSheet by remember { mutableStateOf(false) }
+    var showInstallmentPlanSheet by remember { mutableStateOf(false) }
     val state = viewModel.uiState
 
     Box(Modifier.fillMaxSize()) {
@@ -106,8 +117,31 @@ fun CardDetailScreen(
                     state = state,
                     onRecordPurchase = { showPurchaseSheet = true },
                     onPayCard = { showPaymentSheet = true },
+                    onNewInstallmentPlan = { showInstallmentPlanSheet = true },
+                    installmentPlansState = installmentPlansViewModel.uiState,
+                    payingInstallmentId = installmentPlansViewModel.payingInstallmentId,
+                    payError = installmentPlansViewModel.payError,
+                    onRetryInstallmentPlans = { installmentPlansViewModel.load(installmentsFallbackError) },
+                    onPayInstallment = { planId, installmentId ->
+                        installmentPlansViewModel.payInstallment(planId, installmentId, installmentsFallbackError)
+                    },
                 )
             }
+        }
+
+        if (showInstallmentPlanSheet && state is CardDetailUiState.Success) {
+            CreateInstallmentPlanSheet(
+                cardId = cardId,
+                installmentRepository = installmentRepository,
+                categoryRepository = categoryRepository,
+                categories = state.categories,
+                onDismiss = { showInstallmentPlanSheet = false },
+                onSaved = {
+                    showInstallmentPlanSheet = false
+                    viewModel.refresh(fallbackError)
+                    installmentPlansViewModel.refresh(installmentsFallbackError)
+                },
+            )
         }
 
         if (showPurchaseSheet && state is CardDetailUiState.Success) {
@@ -144,6 +178,12 @@ private fun CardDetailContent(
     state: CardDetailUiState.Success,
     onRecordPurchase: () -> Unit,
     onPayCard: () -> Unit,
+    onNewInstallmentPlan: () -> Unit,
+    installmentPlansState: InstallmentPlansUiState,
+    payingInstallmentId: String?,
+    payError: String?,
+    onRetryInstallmentPlans: () -> Unit,
+    onPayInstallment: (planId: String, installmentId: String) -> Unit,
 ) {
     val card = state.card
     val usage = if (card.creditLimit > 0) (card.currentDebt / card.creditLimit).coerceIn(0.0, 1.0).toFloat() else 0f
@@ -188,6 +228,24 @@ private fun CardDetailContent(
                     Text(stringResource(R.string.cards_detail_pay_card), modifier = Modifier.padding(start = 6.dp))
                 }
             }
+
+            OutlinedButton(onClick = onNewInstallmentPlan, modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+                Icon(Icons.Filled.EventRepeat, contentDescription = null, modifier = Modifier.height(18.dp))
+                Text(stringResource(R.string.installments_new_plan), modifier = Modifier.padding(start = 6.dp))
+            }
+
+            Text(
+                stringResource(R.string.installments_heading),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 28.dp, bottom = 8.dp),
+            )
+            InstallmentPlansSection(
+                state = installmentPlansState,
+                payingInstallmentId = payingInstallmentId,
+                payError = payError,
+                onRetry = onRetryInstallmentPlans,
+                onPayInstallment = onPayInstallment,
+            )
 
             Text(
                 stringResource(R.string.cards_detail_movements),
