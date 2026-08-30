@@ -140,6 +140,7 @@ private fun AuthenticatedAwareNavHost(
                         transactionRepository = container.transactionRepository,
                         categoryRepository = container.categoryRepository,
                         accountRepository = container.accountRepository,
+                        installmentRepository = container.installmentRepository,
                         onNavigateBack = { navController.popBackStack() },
                     )
                 }

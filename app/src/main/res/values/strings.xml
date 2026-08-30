@@ -139,6 +139,40 @@
     <string name="cards_type_purchase">Compra</string>
     <string name="cards_type_payment">Pago</string>
 
+    <!-- Planes MSI/MCI (A6) -->
+    <string name="installments_heading">Planes MSI/MCI</string>
+    <string name="installments_new_plan">Comprar a MSI/MCI</string>
+    <string name="installments_empty">Todavía no tienes compras a meses en esta tarjeta.</string>
+    <string name="installments_load_error">No se pudieron cargar los planes de esta tarjeta.</string>
+    <string name="installments_plan_type_msi">MSI</string>
+    <string name="installments_plan_type_mci">MCI</string>
+    <string name="installments_status_active">Activo</string>
+    <string name="installments_status_completed">Liquidado</string>
+    <string name="installments_status_cancelled">Cancelado</string>
+    <string name="installments_installment_status_pending">Pendiente</string>
+    <string name="installments_installment_status_paid">Pagada</string>
+    <string name="installments_installment_amount">Cuota mensual</string>
+    <string name="installments_financed_balance">Saldo financiado</string>
+    <string name="installments_paid_of">%1$d de %2$d cuotas pagadas</string>
+    <string name="installments_next_installment">Próxima cuota</string>
+    <string name="installments_no_next_installment">Sin cuotas pendientes</string>
+    <string name="installments_end_date">Termina</string>
+    <string name="installments_schedule_number">Cuota</string>
+    <string name="installments_schedule_due_date">Vence</string>
+    <string name="installments_mark_as_paid">Marcar como pagada</string>
+    <string name="installments_mark_as_paid_hint">Esto solo registra que ya cubriste esta cuota — el dinero sale de tu cuenta cuando pagas la tarjeta.</string>
+    <string name="installments_dialog_title">Comprar a MSI/MCI</string>
+    <string name="installments_dialog_amount">Monto original</string>
+    <string name="installments_dialog_date">Fecha</string>
+    <string name="installments_dialog_merchant">Comercio</string>
+    <string name="installments_dialog_installment_count">Número de cuotas</string>
+    <string name="installments_dialog_installment_count_hint">De 2 a 60</string>
+    <string name="installments_dialog_interest_rate">Tasa de interés mensual (%)</string>
+    <string name="installments_dialog_interest_rate_hint">0 = meses sin intereses (MSI)</string>
+    <string name="installments_dialog_category">Categoría</string>
+    <string name="installments_dialog_description">Descripción</string>
+    <string name="installments_dialog_submit">Registrar</string>
+
     <!-- Placeholder (módulos todavía no implementados) -->
     <string name="coming_soon_title">Próximamente</string>
     <string name="coming_soon_message">Este módulo todavía está en construcción.</string>
