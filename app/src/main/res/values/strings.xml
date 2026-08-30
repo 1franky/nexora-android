@@ -69,6 +69,30 @@
     <string name="new_category_dialog_name">Nombre</string>
     <string name="new_category_dialog_create">Crear</string>
 
+    <!-- Cuentas (A4) -->
+    <string name="accounts_title">Cuentas</string>
+    <string name="accounts_new">Nueva cuenta</string>
+    <string name="accounts_empty">Todavía no tienes cuentas. Crea la primera para empezar a registrar tus movimientos.</string>
+    <string name="accounts_load_error">No se pudieron cargar tus cuentas.</string>
+    <string name="accounts_type_debit">Débito</string>
+    <string name="accounts_type_savings">Ahorro</string>
+    <string name="accounts_type_credit_card">Tarjeta de crédito</string>
+    <string name="accounts_type_afore">AFORE</string>
+    <string name="accounts_type_ppr">PPR</string>
+    <string name="accounts_archived">Archivada</string>
+    <string name="accounts_included_available_balance">Disponible</string>
+    <string name="accounts_included_net_worth">Patrimonio</string>
+    <string name="accounts_dialog_title">Nueva cuenta</string>
+    <string name="accounts_dialog_name">Nombre</string>
+    <string name="accounts_dialog_type">Tipo</string>
+    <string name="accounts_dialog_currency">Moneda</string>
+    <string name="accounts_dialog_currency_hint">Código ISO 4217 de 3 letras, ej. MXN</string>
+    <string name="accounts_dialog_currency_invalid">Usa un código de 3 letras mayúsculas (ej. MXN).</string>
+    <string name="accounts_dialog_opening_balance">Saldo inicial</string>
+    <string name="accounts_dialog_include_available_balance">Incluir en disponible</string>
+    <string name="accounts_dialog_include_net_worth">Incluir en patrimonio</string>
+    <string name="accounts_dialog_create">Crear cuenta</string>
+
     <!-- Placeholder (módulos todavía no implementados) -->
     <string name="coming_soon_title">Próximamente</string>
     <string name="coming_soon_message">Este módulo todavía está en construcción.</string>

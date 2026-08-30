@@ -5,6 +5,7 @@ sealed class NexoraDestination(val route: String) {
     data object Login : NexoraDestination("login")
     data object Register : NexoraDestination("register")
     data object Dashboard : NexoraDestination("dashboard")
+    data object Accounts : NexoraDestination("accounts")
     data object Transactions : NexoraDestination("transactions")
     data object Cards : NexoraDestination("cards")
     data object Notifications : NexoraDestination("notifications")
