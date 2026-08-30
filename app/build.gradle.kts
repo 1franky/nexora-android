@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     // Desde AGP 9.0, com.android.application ya trae el soporte de Kotlin
     // integrado — org.jetbrains.kotlin.android ya no se aplica aparte.
@@ -7,6 +10,21 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+/**
+ * Firma de release (A9): local (keystore.properties, gitignored — ver
+ * keystore.properties.example) o CI (variables de entorno, ver
+ * .github/workflows/release.yml). Sin ninguna de las dos, releaseSigning
+ * queda con valores null y solo falla `assembleRelease`/`bundleRelease` —
+ * el resto de tareas (debug incluido) no se ve afectado.
+ */
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) load(FileInputStream(keystorePropertiesFile))
+}
+
+fun releaseSigningProperty(propertyKey: String, envVar: String): String? =
+    System.getenv(envVar) ?: keystoreProperties.getProperty(propertyKey)
+
 android {
     namespace = "com.nexora.android"
     compileSdk = 37
@@ -15,18 +33,30 @@ android {
         applicationId = "com.nexora.android"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // 1.0.0: A1-A9 completos (plan.md, sección 9) — primer release firmado.
+        versionCode = 2
+        versionName = "1.0.0"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
         buildConfigField("String", "API_BASE_URL", "\"https://nexora-api.franciscolopez.uk/api/v1/\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFilePath = releaseSigningProperty("storeFile", "KEYSTORE_PATH")
+            if (storeFilePath != null) storeFile = file(storeFilePath)
+            storePassword = releaseSigningProperty("storePassword", "KEYSTORE_PASSWORD")
+            keyAlias = releaseSigningProperty("keyAlias", "KEY_ALIAS")
+            keyPassword = releaseSigningProperty("keyPassword", "KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -45,6 +75,7 @@ android {
     }
 
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
+    sourceSets["test"].kotlin.srcDirs("src/test/kotlin")
 }
 
 dependencies {
@@ -76,6 +107,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

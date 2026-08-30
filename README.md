@@ -63,9 +63,31 @@ peor que un banner de "sincronizando". La app solo muestra que hay cambios
 pendientes; los números se actualizan de verdad cuando el backend los
 procesa.
 
+## Testing
+
+Tests unitarios JVM (`app/src/test`, sin Robolectric/emulador): la lógica
+más riesgosa de probar sin red real — la decisión online/offline de
+`cachedApiCall`/`writeCall`, y el despacho de `OperationDispatcher` por
+tipo de operación — más formatters. Corren en CI en cada push/PR
+(`.github/workflows/ci.yml`).
+
+## Release
+
+`.github/workflows/release.yml` compila, firma y publica un
+[Release de GitHub](https://github.com/1franky/nexora-android/releases)
+con el APK cada vez que se sube un tag `vX.Y.Z` (no dispara con los tags
+`vX.Y.Z-debug` de builds sin firmar de antes de A9). La clave de firma
+vive como GitHub Secret (`RELEASE_KEYSTORE_BASE64` + contraseñas) — nunca
+en el repo. Para compilar `assembleRelease` en local hace falta un
+`keystore.properties` propio (ver `keystore.properties.example`,
+gitignored).
+
 ## Estado del proyecto
 
-En fase de diseño / arranque. Ver [`plan.md`](./plan.md) para el plan de desarrollo completo (roadmap, MVP y reglas de la app).
+Roadmap completo (A1-A9, ver [`plan.md`](./plan.md)): base, login/registro,
+dashboard, cuentas, movimientos, tarjetas, MSI/MCI, notificaciones, modo
+offline, testing y release firmado. Consume la API real desplegada en
+`https://nexora-api.franciscolopez.uk`.
 
 ## Repositorios relacionados
 

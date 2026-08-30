@@ -114,7 +114,13 @@ class AppContainer(context: Context) {
     /** Vive mientras viva el proceso: solo reacciona a conectividad y dispara sync, nada que cancelar. */
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    init {
+    /**
+     * NexoraApplication la llama justo después de `WorkManager.initialize(...)` —
+     * antes de eso, cualquier llamada a WorkManager.getInstance() (lo que hacen
+     * syncScheduler y, indirectamente, el collector de conectividad) revienta
+     * con "WorkManager is not initialized properly".
+     */
+    fun startSync() {
         connectivityObserver.start()
         syncScheduler.schedulePeriodicSync()
         applicationScope.launch {
