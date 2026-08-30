@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Nexora</string>
+    <string name="app_tagline">Tus finanzas, claras.</string>
+
+    <!-- Login -->
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Contraseña</string>
+    <string name="login_submit">Entrar</string>
+    <string name="login_no_account">¿No tienes cuenta?</string>
+    <string name="login_create_account">Crear una cuenta</string>
+    <string name="login_error_generic">Ocurrió un error. Intenta de nuevo.</string>
+    <string name="login_error_invalid_credentials">Email o contraseña inválidos.</string>
+    <string name="password_toggle_show">Mostrar contraseña</string>
+    <string name="password_toggle_hide">Ocultar contraseña</string>
+
+    <!-- Register -->
+    <string name="register_title">Crear cuenta</string>
+    <string name="register_name_label">Nombre</string>
+    <string name="register_email_label">Email</string>
+    <string name="register_password_label">Contraseña</string>
+    <string name="register_submit">Crear cuenta</string>
+    <string name="register_has_account">¿Ya tienes cuenta?</string>
+    <string name="register_login_link">Inicia sesión</string>
+    <string name="back">Atrás</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_transactions">Movimientos</string>
+    <string name="nav_cards">Tarjetas</string>
+    <string name="nav_notifications">Avisos</string>
+    <string name="notifications_content_description">Notificaciones</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_greeting">Hola,</string>
+    <string name="dashboard_available">Disponible</string>
+    <string name="dashboard_debt">Deuda</string>
+    <string name="dashboard_next_payment">Próximo pago</string>
+    <string name="dashboard_expenses_this_month">Gastos del mes</string>
+    <string name="dashboard_quick_actions">ACCIONES RÁPIDAS</string>
+    <string name="dashboard_action_income">Ingreso</string>
+    <string name="dashboard_action_expense">Gasto</string>
+    <string name="dashboard_action_transfer">Transferir</string>
+    <string name="dashboard_action_purchase">Compra</string>
+    <string name="dashboard_action_pay">Pagar</string>
+    <string name="dashboard_load_error">No se pudo cargar el dashboard.</string>
+    <string name="retry">Reintentar</string>
+
+    <!-- Placeholder (módulos todavía no implementados) -->
+    <string name="coming_soon_title">Próximamente</string>
+    <string name="coming_soon_message">Este módulo todavía está en construcción.</string>
+
+    <!-- Logout -->
+    <string name="logout">Cerrar sesión</string>
+</resources>

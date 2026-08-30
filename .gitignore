@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Local config (rutas de máquina, nunca se sube)
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+
+# Canvas de diseño sembrado (payload del editor embebido, ~2.5MB) — el diseño
+# vive en el Artifact publicado; solo los .dc.html/canvas.json fuente se versionan.
+design/*.html
+!design/*.dc.html
