@@ -11,6 +11,8 @@ import com.nexora.android.data.account.AccountApi
 import com.nexora.android.data.account.AccountRepository
 import com.nexora.android.data.category.CategoryApi
 import com.nexora.android.data.category.CategoryRepository
+import com.nexora.android.data.creditcard.CreditCardApi
+import com.nexora.android.data.creditcard.CreditCardRepository
 import com.nexora.android.data.dashboard.DashboardApi
 import com.nexora.android.data.dashboard.DashboardRepository
 import com.nexora.android.data.transaction.TransactionApi
@@ -77,6 +79,7 @@ class AppContainer(context: Context) {
     private val accountApi: AccountApi = retrofit.create()
     private val categoryApi: CategoryApi = retrofit.create()
     private val transactionApi: TransactionApi = retrofit.create()
+    private val creditCardApi: CreditCardApi = retrofit.create()
 
     val authRepository = AuthRepository(authApi, usersApi, tokenStore)
     val userRepository = UserRepository(usersApi)
@@ -84,4 +87,5 @@ class AppContainer(context: Context) {
     val accountRepository = AccountRepository(accountApi)
     val categoryRepository = CategoryRepository(categoryApi)
     val transactionRepository = TransactionRepository(transactionApi)
+    val creditCardRepository = CreditCardRepository(creditCardApi)
 }

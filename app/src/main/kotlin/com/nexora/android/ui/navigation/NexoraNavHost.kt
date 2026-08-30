@@ -13,12 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.nexora.android.di.AppContainer
 import com.nexora.android.ui.accounts.AccountsScreen
+import com.nexora.android.ui.cards.CardDetailScreen
+import com.nexora.android.ui.cards.CardsScreen
 import com.nexora.android.ui.components.NexoraBottomBar
 import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.login.LoginScreen
@@ -118,7 +122,28 @@ private fun AuthenticatedAwareNavHost(
                     categoryRepository = container.categoryRepository,
                 )
             }
-            composable(NexoraDestination.Cards.route) { ComingSoonScreen() }
+            composable(NexoraDestination.Cards.route) {
+                CardsScreen(
+                    creditCardRepository = container.creditCardRepository,
+                    onCardClick = { cardId -> navController.navigate(NexoraDestination.CardDetail.routeFor(cardId)) },
+                )
+            }
+            composable(
+                route = NexoraDestination.CardDetail.route,
+                arguments = listOf(navArgument("cardId") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val cardId = backStackEntry.arguments?.getString("cardId")
+                if (cardId != null) {
+                    CardDetailScreen(
+                        cardId = cardId,
+                        creditCardRepository = container.creditCardRepository,
+                        transactionRepository = container.transactionRepository,
+                        categoryRepository = container.categoryRepository,
+                        accountRepository = container.accountRepository,
+                        onNavigateBack = { navController.popBackStack() },
+                    )
+                }
+            }
             composable(NexoraDestination.Notifications.route) { ComingSoonScreen() }
         }
     }

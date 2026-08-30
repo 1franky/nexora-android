@@ -93,6 +93,52 @@
     <string name="accounts_dialog_include_net_worth">Incluir en patrimonio</string>
     <string name="accounts_dialog_create">Crear cuenta</string>
 
+    <!-- Tarjetas (A5) -->
+    <string name="cards_title">Tarjetas</string>
+    <string name="cards_new">Nueva tarjeta</string>
+    <string name="cards_empty">Todavía no tienes tarjetas de crédito. Crea la primera para registrar tus compras y pagos.</string>
+    <string name="cards_load_error">No se pudieron cargar tus tarjetas.</string>
+    <string name="cards_archived">Archivada</string>
+    <string name="cards_debt">Deuda</string>
+    <string name="cards_available">Disponible</string>
+    <string name="cards_limit">Límite</string>
+    <string name="cards_next_payment">Próximo pago</string>
+    <string name="cards_dialog_title">Nueva tarjeta</string>
+    <string name="cards_dialog_name">Nombre</string>
+    <string name="cards_dialog_bank">Banco</string>
+    <string name="cards_dialog_last4">Últimos 4 dígitos</string>
+    <string name="cards_dialog_last4_hint">Solo para identificarla, nunca el número completo.</string>
+    <string name="cards_dialog_last4_invalid">Deben ser exactamente 4 dígitos.</string>
+    <string name="cards_dialog_credit_limit">Límite de crédito</string>
+    <string name="cards_dialog_closing_day">Día de corte</string>
+    <string name="cards_dialog_payment_due_day">Día límite de pago</string>
+    <string name="cards_dialog_day_hint">Del 1 al 28</string>
+    <string name="cards_dialog_currency">Moneda</string>
+    <string name="cards_dialog_currency_hint">Código ISO 4217 de 3 letras, ej. MXN</string>
+    <string name="cards_dialog_currency_invalid">Usa un código de 3 letras mayúsculas (ej. MXN).</string>
+    <string name="cards_dialog_create">Crear tarjeta</string>
+    <string name="cards_detail_not_found">No se encontró la tarjeta.</string>
+    <string name="cards_detail_record_purchase">Registrar compra</string>
+    <string name="cards_detail_pay_card">Pagar tarjeta</string>
+    <string name="cards_detail_movements">Movimientos</string>
+    <string name="cards_detail_empty">Todavía no hay compras ni pagos en esta tarjeta.</string>
+    <string name="purchase_dialog_title">Registrar compra</string>
+    <string name="purchase_dialog_amount">Monto</string>
+    <string name="purchase_dialog_date">Fecha</string>
+    <string name="purchase_dialog_merchant">Comercio</string>
+    <string name="purchase_dialog_category">Categoría</string>
+    <string name="purchase_dialog_description">Descripción</string>
+    <string name="purchase_dialog_submit">Registrar</string>
+    <string name="payment_dialog_title">Pagar tarjeta</string>
+    <string name="payment_dialog_from_account">Cuenta de origen</string>
+    <string name="payment_dialog_no_accounts_available">Necesitas otra cuenta activa (no una tarjeta) para poder pagar.</string>
+    <string name="payment_dialog_amount">Monto</string>
+    <string name="payment_dialog_date">Fecha</string>
+    <string name="payment_dialog_description">Descripción</string>
+    <string name="payment_dialog_submit">Pagar</string>
+    <string name="cards_type_purchase">Compra</string>
+    <string name="cards_type_payment">Pago</string>
+
     <!-- Placeholder (módulos todavía no implementados) -->
     <string name="coming_soon_title">Próximamente</string>
     <string name="coming_soon_message">Este módulo todavía está en construcción.</string>

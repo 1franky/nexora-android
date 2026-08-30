@@ -9,6 +9,11 @@ sealed class NexoraDestination(val route: String) {
     data object Transactions : NexoraDestination("transactions")
     data object Cards : NexoraDestination("cards")
     data object Notifications : NexoraDestination("notifications")
+
+    /** Detalle de una tarjeta — no es un destino fijo, se arma con el id. */
+    data object CardDetail : NexoraDestination("cards/{cardId}") {
+        fun routeFor(cardId: String) = "cards/$cardId"
+    }
 }
 
 /** Los 4 destinos del bottom nav (mismo orden que en los mockups: Dashboard, Movimientos, Tarjetas, Avisos). */
