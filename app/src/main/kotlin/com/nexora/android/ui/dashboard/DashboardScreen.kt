@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import com.nexora.android.data.dashboard.DashboardRepository
 import com.nexora.android.data.user.UserRepository
 import com.nexora.android.ui.common.formatCurrency
 import com.nexora.android.ui.theme.NexoraExtendedTheme
+import com.nexora.android.ui.transactions.MovementKind
 
 @Composable
 fun DashboardScreen(
@@ -54,6 +56,8 @@ fun DashboardScreen(
     userRepository: UserRepository,
     authRepository: AuthRepository,
     onNavigateToAccounts: () -> Unit,
+    onNavigateToNewTransaction: (MovementKind) -> Unit,
+    onNavigateToCards: () -> Unit,
 ) {
     val viewModel: DashboardViewModel = viewModel(
         factory = viewModelFactory { initializer { DashboardViewModel(dashboardRepository, userRepository, authRepository) } },
@@ -80,12 +84,20 @@ fun DashboardScreen(
             data = state.data,
             onLogout = viewModel::logout,
             onNavigateToAccounts = onNavigateToAccounts,
+            onNavigateToNewTransaction = onNavigateToNewTransaction,
+            onNavigateToCards = onNavigateToCards,
         )
     }
 }
 
 @Composable
-private fun DashboardContent(data: DashboardData, onLogout: () -> Unit, onNavigateToAccounts: () -> Unit) {
+private fun DashboardContent(
+    data: DashboardData,
+    onLogout: () -> Unit,
+    onNavigateToAccounts: () -> Unit,
+    onNavigateToNewTransaction: (MovementKind) -> Unit,
+    onNavigateToCards: () -> Unit,
+) {
     val dashboard = data.dashboard
 
     Column(
@@ -109,6 +121,13 @@ private fun DashboardContent(data: DashboardData, onLogout: () -> Unit, onNaviga
         }
 
         Spacer(Modifier.height(18.dp))
+
+        NetWorthHeroCard(
+            label = stringResource(R.string.dashboard_net_worth),
+            value = formatCurrency(dashboard.netWorth),
+        )
+
+        Spacer(Modifier.height(12.dp))
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard(
@@ -153,14 +172,55 @@ private fun DashboardContent(data: DashboardData, onLogout: () -> Unit, onNaviga
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            QuickActionChip(Icons.Filled.ArrowDownward, stringResource(R.string.dashboard_action_income), primary = true)
-            QuickActionChip(Icons.Filled.ArrowUpward, stringResource(R.string.dashboard_action_expense), primary = false)
-            QuickActionChip(Icons.Filled.SwapHoriz, stringResource(R.string.dashboard_action_transfer), primary = false)
-            QuickActionChip(Icons.Filled.ShoppingCart, stringResource(R.string.dashboard_action_purchase), primary = false)
-            QuickActionChip(Icons.Filled.CreditCard, stringResource(R.string.dashboard_action_pay), primary = false)
+            QuickActionChip(
+                Icons.Filled.ArrowDownward,
+                stringResource(R.string.dashboard_action_income),
+                primary = true,
+                onClick = { onNavigateToNewTransaction(MovementKind.INCOME) },
+            )
+            QuickActionChip(
+                Icons.Filled.ArrowUpward,
+                stringResource(R.string.dashboard_action_expense),
+                primary = false,
+                onClick = { onNavigateToNewTransaction(MovementKind.EXPENSE) },
+            )
+            QuickActionChip(
+                Icons.Filled.SwapHoriz,
+                stringResource(R.string.dashboard_action_transfer),
+                primary = false,
+                onClick = { onNavigateToNewTransaction(MovementKind.TRANSFER) },
+            )
+            // Compra y pago necesitan elegir una tarjeta primero: llevan al listado, donde
+            // cada tarjeta ya tiene sus propios botones de "Registrar compra" y "Pagar".
+            QuickActionChip(
+                Icons.Filled.ShoppingCart,
+                stringResource(R.string.dashboard_action_purchase),
+                primary = false,
+                onClick = onNavigateToCards,
+            )
+            QuickActionChip(
+                Icons.Filled.CreditCard,
+                stringResource(R.string.dashboard_action_pay),
+                primary = false,
+                onClick = onNavigateToCards,
+            )
         }
 
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun NetWorthHeroCard(label: String, value: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(24.dp))
+            .padding(20.dp),
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f))
+        Spacer(Modifier.height(8.dp))
+        Text(value, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onPrimary)
     }
 }
 
@@ -189,15 +249,14 @@ private fun StatCard(
 }
 
 @Composable
-private fun QuickActionChip(icon: ImageVector, label: String, primary: Boolean) {
+private fun QuickActionChip(icon: ImageVector, label: String, primary: Boolean, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(64.dp)) {
         Box(
             modifier = Modifier
                 .size(52.dp)
-                .background(
-                    if (primary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                    CircleShape,
-                ),
+                .clip(CircleShape)
+                .background(if (primary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
+                .clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

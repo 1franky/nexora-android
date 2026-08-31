@@ -40,9 +40,10 @@ class NewTransactionViewModel(
     private val transactionRepository: TransactionRepository,
     private val categoryRepository: CategoryRepository,
     defaultAccountId: String?,
+    initialKind: MovementKind = MovementKind.EXPENSE,
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(NewTransactionUiState(accountId = defaultAccountId ?: ""))
+    var uiState by mutableStateOf(NewTransactionUiState(kind = initialKind, accountId = defaultAccountId ?: ""))
         private set
 
     fun onKindChange(kind: MovementKind) {

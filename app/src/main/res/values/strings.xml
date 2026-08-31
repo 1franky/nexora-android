@@ -32,6 +32,7 @@
 
     <!-- Dashboard -->
     <string name="dashboard_greeting">Hola,</string>
+    <string name="dashboard_net_worth">Patrimonio neto</string>
     <string name="dashboard_available">Disponible</string>
     <string name="dashboard_debt">Deuda</string>
     <string name="dashboard_next_payment">Próximo pago</string>
