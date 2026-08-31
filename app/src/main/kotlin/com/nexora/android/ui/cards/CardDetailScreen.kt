@@ -181,6 +181,8 @@ fun CardDetailScreen(
                 onSaved = {
                     showPaymentSheet = false
                     viewModel.refresh(fallbackError)
+                    // Un pago puede marcar cuotas MSI/MCI del mes corriente como pagadas (nexora-api).
+                    installmentPlansViewModel.refresh(installmentsFallbackError)
                 },
             )
         }
