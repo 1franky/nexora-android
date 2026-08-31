@@ -30,6 +30,7 @@ import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.login.LoginScreen
 import com.nexora.android.ui.notifications.NotificationsScreen
 import com.nexora.android.ui.register.RegisterScreen
+import com.nexora.android.ui.transactions.MovementKind
 import com.nexora.android.ui.transactions.TransactionsScreen
 
 /**
@@ -113,6 +114,8 @@ private fun AuthenticatedAwareNavHost(
                         userRepository = container.userRepository,
                         authRepository = container.authRepository,
                         onNavigateToAccounts = { navController.navigate(NexoraDestination.Accounts.route) },
+                        onNavigateToNewTransaction = { kind -> navController.navigate(NexoraDestination.NewTransaction.routeFor(kind)) },
+                        onNavigateToCards = { navController.navigate(NexoraDestination.Cards.route) },
                     )
                 }
                 composable(NexoraDestination.Accounts.route) {
@@ -126,6 +129,20 @@ private fun AuthenticatedAwareNavHost(
                         transactionRepository = container.transactionRepository,
                         accountRepository = container.accountRepository,
                         categoryRepository = container.categoryRepository,
+                    )
+                }
+                composable(
+                    route = NexoraDestination.NewTransaction.route,
+                    arguments = listOf(navArgument("kind") { type = NavType.StringType }),
+                ) { backStackEntry ->
+                    val kind = backStackEntry.arguments?.getString("kind")?.let {
+                        runCatching { MovementKind.valueOf(it) }.getOrDefault(MovementKind.EXPENSE)
+                    } ?: MovementKind.EXPENSE
+                    TransactionsScreen(
+                        transactionRepository = container.transactionRepository,
+                        accountRepository = container.accountRepository,
+                        categoryRepository = container.categoryRepository,
+                        initialKind = kind,
                     )
                 }
                 composable(NexoraDestination.Cards.route) {

@@ -66,12 +66,15 @@ fun NewTransactionSheet(
     categoryRepository: CategoryRepository,
     onDismiss: () -> Unit,
     onSaved: () -> Unit,
+    initialKind: MovementKind = MovementKind.EXPENSE,
 ) {
     // remember (no viewModel()) a propósito: esta hoja entra y sale de la composición cada
     // vez que se abre/cierra, así que el estado debe nacer limpio en cada apertura. Con
     // viewModel() el formulario quedaría atado al NavBackStackEntry de "Movimientos" y
     // arrastraría el monto/categoría del intento anterior tras cancelar y reabrir.
-    val viewModel = remember { NewTransactionViewModel(transactionRepository, categoryRepository, defaultAccountId ?: accounts.firstOrNull()?.id) }
+    val viewModel = remember {
+        NewTransactionViewModel(transactionRepository, categoryRepository, defaultAccountId ?: accounts.firstOrNull()?.id, initialKind)
+    }
     val uiState = viewModel.uiState
     val fallbackError = stringResource(R.string.login_error_generic)
     val sheetState = rememberModalBottomSheetState()

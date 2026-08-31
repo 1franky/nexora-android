@@ -61,6 +61,7 @@ fun TransactionsScreen(
     transactionRepository: TransactionRepository,
     accountRepository: AccountRepository,
     categoryRepository: CategoryRepository,
+    initialKind: MovementKind? = null,
 ) {
     val viewModel: TransactionsViewModel = viewModel(
         factory = viewModelFactory {
@@ -70,7 +71,9 @@ fun TransactionsScreen(
     val fallbackError = stringResource(R.string.transactions_load_error)
     LaunchedEffect(Unit) { viewModel.load(fallbackError) }
 
-    var showNewTransactionSheet by remember { mutableStateOf(false) }
+    // Si se llega desde una acción rápida del dashboard (ingreso/gasto/transferir), la
+    // hoja de nuevo movimiento se abre sola con ese tipo ya preseleccionado.
+    var showNewTransactionSheet by remember { mutableStateOf(initialKind != null) }
     val state = viewModel.uiState
 
     Scaffold(
@@ -115,6 +118,7 @@ fun TransactionsScreen(
                         showNewTransactionSheet = false
                         viewModel.refresh(fallbackError)
                     },
+                    initialKind = initialKind ?: MovementKind.EXPENSE,
                 )
             }
         }
