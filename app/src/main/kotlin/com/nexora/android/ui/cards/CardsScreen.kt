@@ -16,11 +16,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -58,6 +60,7 @@ fun CardsScreen(
     LaunchedEffect(Unit) { viewModel.load(fallbackError) }
 
     var showNewCardSheet by remember { mutableStateOf(false) }
+    var editingCard by remember { mutableStateOf<CreditCard?>(null) }
     var search by remember { mutableStateOf("") }
     val state = viewModel.uiState
 
@@ -133,7 +136,7 @@ fun CardsScreen(
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
                                 ) {
                                     items(filteredCards, key = { it.id }) { card ->
-                                        CreditCardRow(card, onClick = { onCardClick(card.id) })
+                                        CreditCardRow(card, onClick = { onCardClick(card.id) }, onEditClick = { editingCard = card })
                                     }
                                 }
                             }
@@ -152,12 +155,24 @@ fun CardsScreen(
                     },
                 )
             }
+
+            editingCard?.let { card ->
+                EditCreditCardSheet(
+                    card = card,
+                    creditCardRepository = creditCardRepository,
+                    onDismiss = { editingCard = null },
+                    onSaved = {
+                        editingCard = null
+                        viewModel.refresh(fallbackError)
+                    },
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun CreditCardRow(card: CreditCard, onClick: () -> Unit) {
+private fun CreditCardRow(card: CreditCard, onClick: () -> Unit, onEditClick: () -> Unit) {
     val archived = card.status == CreditCardStatus.ARCHIVED
     val usage = if (card.creditLimit > 0) (card.currentDebt / card.creditLimit).coerceIn(0.0, 1.0).toFloat() else 0f
 
@@ -178,15 +193,20 @@ private fun CreditCardRow(card: CreditCard, onClick: () -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 color = if (archived) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
             )
-            if (archived) {
-                Text(
-                    stringResource(R.string.cards_archived),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (archived) {
+                    Text(
+                        stringResource(R.string.cards_archived),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                }
+                IconButton(onClick = onEditClick) {
+                    Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.action_edit))
+                }
             }
         }
         Text(

@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -60,6 +61,7 @@ fun AccountsScreen(
     LaunchedEffect(Unit) { viewModel.load(fallbackError) }
 
     var showNewAccountSheet by remember { mutableStateOf(false) }
+    var editingAccount by remember { mutableStateOf<Account?>(null) }
     var search by remember { mutableStateOf("") }
     val state = viewModel.uiState
 
@@ -135,7 +137,7 @@ fun AccountsScreen(
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
                                 ) {
                                     items(filteredAccounts, key = { it.id }) { account ->
-                                        AccountCard(account)
+                                        AccountCard(account, onEditClick = { editingAccount = account })
                                     }
                                 }
                             }
@@ -154,12 +156,24 @@ fun AccountsScreen(
                     },
                 )
             }
+
+            editingAccount?.let { account ->
+                EditAccountSheet(
+                    account = account,
+                    accountRepository = accountRepository,
+                    onDismiss = { editingAccount = null },
+                    onSaved = {
+                        editingAccount = null
+                        viewModel.refresh(fallbackError)
+                    },
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun AccountCard(account: Account) {
+private fun AccountCard(account: Account, onEditClick: () -> Unit) {
     val archived = account.status == AccountStatus.ARCHIVED
     Column(
         modifier = Modifier
@@ -177,15 +191,20 @@ private fun AccountCard(account: Account) {
                 style = MaterialTheme.typography.titleMedium,
                 color = if (archived) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
             )
-            if (archived) {
-                Text(
-                    stringResource(R.string.accounts_archived),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (archived) {
+                    Text(
+                        stringResource(R.string.accounts_archived),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                }
+                IconButton(onClick = onEditClick) {
+                    Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.action_edit))
+                }
             }
         }
         Text(

@@ -1,5 +1,6 @@
 package com.nexora.android.data.installment
 
+import com.nexora.android.data.common.apiCall
 import com.nexora.android.data.offline.OfflineCache
 import com.nexora.android.data.offline.OperationType
 import com.nexora.android.data.offline.PendingOperationDao
@@ -48,4 +49,8 @@ class InstallmentRepository(
         if (outcome is WriteOutcome.Queued) syncScheduler.requestSync()
         return outcome
     }
+
+    /** Sin caché ni cola offline a propósito: el usuario espera ver el resultado (o el error) de inmediato. */
+    suspend fun updatePlan(planId: String, request: UpdateInstallmentPlanRequest, fallbackError: String): InstallmentPlan =
+        apiCall(fallbackError) { installmentApi.updatePlan(planId, request) }
 }

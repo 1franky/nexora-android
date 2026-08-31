@@ -1,5 +1,6 @@
 package com.nexora.android.data.account
 
+import com.nexora.android.data.common.apiCall
 import com.nexora.android.data.offline.OfflineCache
 import com.nexora.android.data.offline.OperationType
 import com.nexora.android.data.offline.PendingOperationDao
@@ -32,5 +33,16 @@ class AccountRepository(
         ) { key -> accountApi.createAccount(key, request) }
         if (outcome is WriteOutcome.Queued) syncScheduler.requestSync()
         return outcome
+    }
+
+    /** Sin caché ni cola offline a propósito: el usuario espera ver el resultado (o el error) de inmediato. */
+    suspend fun updateAccount(
+        id: String,
+        name: String,
+        includeInAvailableBalance: Boolean,
+        includeInNetWorth: Boolean,
+        fallbackError: String,
+    ): Account = apiCall(fallbackError) {
+        accountApi.updateAccount(id, UpdateAccountRequest(name, includeInAvailableBalance, includeInNetWorth))
     }
 }

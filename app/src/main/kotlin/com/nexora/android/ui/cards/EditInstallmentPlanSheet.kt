@@ -40,6 +40,7 @@ import com.nexora.android.data.category.Category
 import com.nexora.android.data.category.CategoryRepository
 import com.nexora.android.data.category.CategoryStatus
 import com.nexora.android.data.category.CategoryType
+import com.nexora.android.data.installment.InstallmentPlan
 import com.nexora.android.data.installment.InstallmentRepository
 import com.nexora.android.ui.common.formatDateShort
 import java.time.Instant
@@ -47,18 +48,22 @@ import java.time.ZoneOffset
 
 private const val NEW_CATEGORY_OPTION = "__new__"
 
+/**
+ * Si el plan ya tiene alguna cuota pagada, nexora-api rechaza cambiar monto,
+ * fecha o número de cuotas — esos campos se muestran deshabilitados en vez
+ * de dejar que el usuario los edite para toparse con el error al guardar.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateInstallmentPlanSheet(
-    cardId: String,
+fun EditInstallmentPlanSheet(
+    plan: InstallmentPlan,
     installmentRepository: InstallmentRepository,
     categoryRepository: CategoryRepository,
     categories: List<Category>,
     onDismiss: () -> Unit,
     onSaved: () -> Unit,
 ) {
-    // remember (no viewModel()): misma razón que en las demás hojas de este módulo.
-    val viewModel = remember { CreateInstallmentPlanViewModel(cardId, installmentRepository, categoryRepository) }
+    val viewModel = remember { EditInstallmentPlanViewModel(installmentRepository, categoryRepository, plan) }
     val uiState = viewModel.uiState
     val fallbackError = stringResource(R.string.installments_load_error)
     val sheetState = rememberModalBottomSheetState()
@@ -78,13 +83,22 @@ fun CreateInstallmentPlanSheet(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text(stringResource(R.string.installments_dialog_title), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.installments_edit_title), style = MaterialTheme.typography.titleLarge)
+
+            if (uiState.structuralLocked) {
+                Text(
+                    stringResource(R.string.installments_edit_structural_locked_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
             OutlinedTextField(
                 value = uiState.amount,
                 onValueChange = viewModel::onAmountChange,
                 label = { Text(stringResource(R.string.installments_dialog_amount)) },
                 singleLine = true,
+                enabled = !uiState.structuralLocked,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -93,15 +107,16 @@ fun CreateInstallmentPlanSheet(
                 value = formatDateShort(uiState.date.toString()),
                 onValueChange = {},
                 readOnly = true,
+                enabled = !uiState.structuralLocked,
                 label = { Text(stringResource(R.string.installments_dialog_date)) },
                 trailingIcon = {
-                    IconButton(onClick = { showDatePicker = true }) {
+                    IconButton(onClick = { showDatePicker = true }, enabled = !uiState.structuralLocked) {
                         Icon(Icons.Filled.CalendarMonth, contentDescription = stringResource(R.string.installments_dialog_date))
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showDatePicker = true },
+                    .clickable(enabled = !uiState.structuralLocked) { showDatePicker = true },
             )
 
             OutlinedTextField(
@@ -119,6 +134,7 @@ fun CreateInstallmentPlanSheet(
                     label = { Text(stringResource(R.string.installments_dialog_installment_count)) },
                     supportingText = { Text(stringResource(R.string.installments_dialog_installment_count_hint)) },
                     singleLine = true,
+                    enabled = !uiState.structuralLocked,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f),
                 )
@@ -128,6 +144,7 @@ fun CreateInstallmentPlanSheet(
                     label = { Text(stringResource(R.string.installments_dialog_interest_rate)) },
                     supportingText = { Text(stringResource(R.string.installments_dialog_interest_rate_hint)) },
                     singleLine = true,
+                    enabled = !uiState.structuralLocked,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f),
                 )
@@ -158,7 +175,7 @@ fun CreateInstallmentPlanSheet(
                 if (uiState.isSaving) {
                     CircularProgressIndicator(modifier = Modifier.height(20.dp), color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text(stringResource(R.string.installments_dialog_submit))
+                    Text(stringResource(R.string.action_save))
                 }
             }
         }
@@ -176,7 +193,7 @@ fun CreateInstallmentPlanSheet(
                         viewModel.onDateChange(Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate())
                     }
                     showDatePicker = false
-                }) { Text(stringResource(R.string.installments_dialog_submit)) }
+                }) { Text(stringResource(R.string.action_save)) }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.back)) }
@@ -187,7 +204,6 @@ fun CreateInstallmentPlanSheet(
     }
 
     if (quickCreateCategory) {
-        // Compartido con CreditCardPurchaseSheet / EditCreditCardPurchaseSheet / EditInstallmentPlanSheet.
         QuickCreateCategoryDialog(
             onDismiss = { quickCreateCategory = false },
             onCreate = { name ->

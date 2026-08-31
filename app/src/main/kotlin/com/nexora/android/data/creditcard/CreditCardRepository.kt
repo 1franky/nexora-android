@@ -1,5 +1,6 @@
 package com.nexora.android.data.creditcard
 
+import com.nexora.android.data.common.apiCall
 import com.nexora.android.data.offline.OfflineCache
 import com.nexora.android.data.offline.OperationType
 import com.nexora.android.data.offline.PendingOperationDao
@@ -26,6 +27,26 @@ class CreditCardRepository(
 
     suspend fun getCreditCard(id: String, fallbackError: String): CreditCard =
         cachedApiCall(offlineCache, cacheKeyCard(id), fallbackError) { creditCardApi.getCreditCard(id) }
+
+    /** Sin caché ni cola offline a propósito: el usuario espera ver el resultado (o el error) de inmediato. */
+    suspend fun updateCreditCard(
+        id: String,
+        name: String,
+        bank: String,
+        creditLimit: Double,
+        closingDay: Int,
+        paymentDueDay: Int,
+        fallbackError: String,
+    ): CreditCard = apiCall(fallbackError) {
+        creditCardApi.updateCreditCard(id, UpdateCreditCardRequest(name, bank, creditLimit, closingDay, paymentDueDay))
+    }
+
+    suspend fun updatePurchase(
+        cardId: String,
+        transactionId: String,
+        request: UpdateCreditCardPurchaseRequest,
+        fallbackError: String,
+    ): Transaction = apiCall(fallbackError) { creditCardApi.updatePurchase(cardId, transactionId, request) }
 
     suspend fun createCreditCard(request: CreateCreditCardRequest, fallbackError: String): WriteOutcome<CreditCard> {
         val outcome = writeCall(

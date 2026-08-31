@@ -31,3 +31,10 @@ data class CreateAccountRequest(
     val includeInAvailableBalance: Boolean = true,
     val includeInNetWorth: Boolean = true,
 )
+
+@Serializable
+data class UpdateAccountRequest(
+    val name: String,
+    val includeInAvailableBalance: Boolean,
+    val includeInNetWorth: Boolean,
+)
