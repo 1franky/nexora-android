@@ -74,6 +74,8 @@
     <string name="accounts_new">Nueva cuenta</string>
     <string name="accounts_empty">Todavía no tienes cuentas. Crea la primera para empezar a registrar tus movimientos.</string>
     <string name="accounts_load_error">No se pudieron cargar tus cuentas.</string>
+    <string name="accounts_search_label">Buscar cuenta</string>
+    <string name="accounts_search_empty">Ninguna cuenta coincide con tu búsqueda.</string>
     <string name="accounts_type_debit">Débito</string>
     <string name="accounts_type_savings">Ahorro</string>
     <string name="accounts_type_credit_card">Tarjeta de crédito</string>
@@ -98,6 +100,8 @@
     <string name="cards_new">Nueva tarjeta</string>
     <string name="cards_empty">Todavía no tienes tarjetas de crédito. Crea la primera para registrar tus compras y pagos.</string>
     <string name="cards_load_error">No se pudieron cargar tus tarjetas.</string>
+    <string name="cards_search_label">Buscar tarjeta</string>
+    <string name="cards_search_empty">Ninguna tarjeta coincide con tu búsqueda.</string>
     <string name="cards_archived">Archivada</string>
     <string name="cards_debt">Deuda</string>
     <string name="cards_available">Disponible</string>

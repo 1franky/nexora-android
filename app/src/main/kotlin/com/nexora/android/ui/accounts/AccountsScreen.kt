@@ -18,12 +18,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,6 +60,7 @@ fun AccountsScreen(
     LaunchedEffect(Unit) { viewModel.load(fallbackError) }
 
     var showNewAccountSheet by remember { mutableStateOf(false) }
+    var search by remember { mutableStateOf("") }
     val state = viewModel.uiState
 
     Scaffold(
@@ -106,12 +109,34 @@ fun AccountsScreen(
                                 )
                             }
                         } else {
-                            LazyColumn(
-                                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 96.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                items(state.accounts, key = { it.id }) { account ->
-                                    AccountCard(account)
+                            OutlinedTextField(
+                                value = search,
+                                onValueChange = { search = it },
+                                label = { Text(stringResource(R.string.accounts_search_label)) },
+                                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp),
+                            )
+                            val filteredAccounts = remember(state.accounts, search) {
+                                state.accounts.filter { it.name.contains(search, ignoreCase = true) }
+                            }
+                            if (filteredAccounts.isEmpty()) {
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        stringResource(R.string.accounts_search_empty),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 32.dp),
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 96.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    items(filteredAccounts, key = { it.id }) { account ->
+                                        AccountCard(account)
+                                    }
                                 }
                             }
                         }
