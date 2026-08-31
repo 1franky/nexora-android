@@ -183,9 +183,10 @@ fun CreditCardPurchaseSheet(
     }
 }
 
+/** No es private: la reutiliza EditCreditCardPurchaseSheet y EditInstallmentPlanSheet. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CategoryDropdown(categories: List<Category>, selectedId: String?, onSelect: (String) -> Unit) {
+fun CategoryDropdown(categories: List<Category>, selectedId: String?, onSelect: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val noCategoryLabel = stringResource(R.string.transactions_category_none)
     val newCategoryLabel = stringResource(R.string.transactions_category_new)
@@ -220,8 +221,9 @@ private fun CategoryDropdown(categories: List<Category>, selectedId: String?, on
     }
 }
 
+/** No es private: la reutiliza EditCreditCardPurchaseSheet y EditInstallmentPlanSheet. */
 @Composable
-private fun QuickCreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
+fun QuickCreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
     var name by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,

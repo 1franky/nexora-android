@@ -3,7 +3,6 @@ package com.nexora.android.ui.cards
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -36,31 +35,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nexora.android.R
-import com.nexora.android.data.category.Category
 import com.nexora.android.data.category.CategoryRepository
 import com.nexora.android.data.category.CategoryStatus
 import com.nexora.android.data.category.CategoryType
-import com.nexora.android.data.installment.InstallmentRepository
+import com.nexora.android.data.creditcard.CreditCardRepository
+import com.nexora.android.data.category.Category
+import com.nexora.android.data.transaction.Transaction
 import com.nexora.android.ui.common.formatDateShort
 import java.time.Instant
 import java.time.ZoneOffset
 
 private const val NEW_CATEGORY_OPTION = "__new__"
 
+/** Solo para compras normales (sin plan MSI/MCI) — esas se editan desde EditInstallmentPlanSheet. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateInstallmentPlanSheet(
+fun EditCreditCardPurchaseSheet(
     cardId: String,
-    installmentRepository: InstallmentRepository,
+    purchase: Transaction,
+    creditCardRepository: CreditCardRepository,
     categoryRepository: CategoryRepository,
     categories: List<Category>,
     onDismiss: () -> Unit,
     onSaved: () -> Unit,
 ) {
-    // remember (no viewModel()): misma razón que en las demás hojas de este módulo.
-    val viewModel = remember { CreateInstallmentPlanViewModel(cardId, installmentRepository, categoryRepository) }
+    val viewModel = remember { EditCreditCardPurchaseViewModel(cardId, creditCardRepository, categoryRepository, purchase) }
     val uiState = viewModel.uiState
-    val fallbackError = stringResource(R.string.installments_load_error)
+    val fallbackError = stringResource(R.string.cards_detail_not_found)
     val sheetState = rememberModalBottomSheetState()
 
     LaunchedEffect(uiState.saved) {
@@ -78,12 +79,12 @@ fun CreateInstallmentPlanSheet(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text(stringResource(R.string.installments_dialog_title), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.purchase_dialog_edit_title), style = MaterialTheme.typography.titleLarge)
 
             OutlinedTextField(
                 value = uiState.amount,
                 onValueChange = viewModel::onAmountChange,
-                label = { Text(stringResource(R.string.installments_dialog_amount)) },
+                label = { Text(stringResource(R.string.purchase_dialog_amount)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
@@ -93,10 +94,10 @@ fun CreateInstallmentPlanSheet(
                 value = formatDateShort(uiState.date.toString()),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text(stringResource(R.string.installments_dialog_date)) },
+                label = { Text(stringResource(R.string.purchase_dialog_date)) },
                 trailingIcon = {
                     IconButton(onClick = { showDatePicker = true }) {
-                        Icon(Icons.Filled.CalendarMonth, contentDescription = stringResource(R.string.installments_dialog_date))
+                        Icon(Icons.Filled.CalendarMonth, contentDescription = stringResource(R.string.purchase_dialog_date))
                     }
                 },
                 modifier = Modifier
@@ -107,31 +108,10 @@ fun CreateInstallmentPlanSheet(
             OutlinedTextField(
                 value = uiState.merchant,
                 onValueChange = viewModel::onMerchantChange,
-                label = { Text(stringResource(R.string.installments_dialog_merchant)) },
+                label = { Text(stringResource(R.string.purchase_dialog_merchant)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
-
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = uiState.installmentCount,
-                    onValueChange = viewModel::onInstallmentCountChange,
-                    label = { Text(stringResource(R.string.installments_dialog_installment_count)) },
-                    supportingText = { Text(stringResource(R.string.installments_dialog_installment_count_hint)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f),
-                )
-                OutlinedTextField(
-                    value = uiState.interestRate,
-                    onValueChange = viewModel::onInterestRateChange,
-                    label = { Text(stringResource(R.string.installments_dialog_interest_rate)) },
-                    supportingText = { Text(stringResource(R.string.installments_dialog_interest_rate_hint)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.weight(1f),
-                )
-            }
 
             CategoryDropdown(
                 categories = categories.filter { it.type == CategoryType.EXPENSE && it.status == CategoryStatus.ACTIVE },
@@ -142,7 +122,7 @@ fun CreateInstallmentPlanSheet(
             OutlinedTextField(
                 value = uiState.description,
                 onValueChange = viewModel::onDescriptionChange,
-                label = { Text(stringResource(R.string.installments_dialog_description)) },
+                label = { Text(stringResource(R.string.purchase_dialog_description)) },
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -158,7 +138,7 @@ fun CreateInstallmentPlanSheet(
                 if (uiState.isSaving) {
                     CircularProgressIndicator(modifier = Modifier.height(20.dp), color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text(stringResource(R.string.installments_dialog_submit))
+                    Text(stringResource(R.string.action_save))
                 }
             }
         }
@@ -176,7 +156,7 @@ fun CreateInstallmentPlanSheet(
                         viewModel.onDateChange(Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate())
                     }
                     showDatePicker = false
-                }) { Text(stringResource(R.string.installments_dialog_submit)) }
+                }) { Text(stringResource(R.string.action_save)) }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.back)) }
@@ -187,7 +167,6 @@ fun CreateInstallmentPlanSheet(
     }
 
     if (quickCreateCategory) {
-        // Compartido con CreditCardPurchaseSheet / EditCreditCardPurchaseSheet / EditInstallmentPlanSheet.
         QuickCreateCategoryDialog(
             onDismiss = { quickCreateCategory = false },
             onCreate = { name ->

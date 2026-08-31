@@ -4,17 +4,21 @@ import com.nexora.android.data.account.Account
 import com.nexora.android.data.account.AccountApi
 import com.nexora.android.data.account.AccountStatus
 import com.nexora.android.data.account.CreateAccountRequest
+import com.nexora.android.data.account.UpdateAccountRequest
 import com.nexora.android.data.creditcard.CreateCreditCardRequest
 import com.nexora.android.data.creditcard.CreditCard
 import com.nexora.android.data.creditcard.CreditCardApi
 import com.nexora.android.data.creditcard.CreditCardPaymentRequest
 import com.nexora.android.data.creditcard.CreditCardPurchaseRequest
 import com.nexora.android.data.creditcard.CreditCardStatus
+import com.nexora.android.data.creditcard.UpdateCreditCardPurchaseRequest
+import com.nexora.android.data.creditcard.UpdateCreditCardRequest
 import com.nexora.android.data.installment.CreateInstallmentPlanRequest
 import com.nexora.android.data.installment.InstallmentApi
 import com.nexora.android.data.installment.InstallmentPlan
 import com.nexora.android.data.installment.InstallmentPlanStatus
 import com.nexora.android.data.installment.InstallmentPlanType
+import com.nexora.android.data.installment.UpdateInstallmentPlanRequest
 import com.nexora.android.data.transaction.CreateTransactionRequest
 import com.nexora.android.data.transaction.CreateTransferRequest
 import com.nexora.android.data.transaction.Transaction
@@ -44,6 +48,8 @@ class FakeAccountApi : AccountApi {
             includeInNetWorth = request.includeInNetWorth, status = AccountStatus.ACTIVE,
         )
     }
+
+    override suspend fun updateAccount(id: String, request: UpdateAccountRequest): Account = error("no usado en estos tests")
 }
 
 class FakeCreditCardApi : CreditCardApi {
@@ -68,6 +74,8 @@ class FakeCreditCardApi : CreditCardApi {
 
     override suspend fun getCreditCard(id: String): CreditCard = error("no usado en estos tests")
 
+    override suspend fun updateCreditCard(id: String, request: UpdateCreditCardRequest): CreditCard = error("no usado en estos tests")
+
     override suspend fun purchase(id: String, idempotencyKey: String, request: CreditCardPurchaseRequest): Transaction {
         lastCardId = id
         lastKey = idempotencyKey
@@ -81,6 +89,9 @@ class FakeCreditCardApi : CreditCardApi {
         lastPaymentRequest = request
         return TransferResult(dummyTransaction(request.fromAccountId), dummyTransaction(id))
     }
+
+    override suspend fun updatePurchase(id: String, transactionId: String, request: UpdateCreditCardPurchaseRequest): Transaction =
+        error("no usado en estos tests")
 }
 
 class FakeTransactionApi : TransactionApi {
@@ -132,4 +143,6 @@ class FakeInstallmentApi : InstallmentApi {
         lastKey = idempotencyKey
         return dummyPlan("card-1")
     }
+
+    override suspend fun updatePlan(id: String, request: UpdateInstallmentPlanRequest): InstallmentPlan = error("no usado en estos tests")
 }

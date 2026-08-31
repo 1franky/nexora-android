@@ -169,8 +169,9 @@ private fun AccountTypeDropdown(selected: AccountType, onSelect: (AccountType) -
     }
 }
 
+/** No es private: la reutiliza EditAccountSheet. */
 @Composable
-private fun SwitchRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun SwitchRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,

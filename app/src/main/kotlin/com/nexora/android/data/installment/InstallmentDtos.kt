@@ -43,6 +43,11 @@ data class InstallmentPlan(
     val financedBalance: Double,
     val nextInstallment: Installment? = null,
     val installments: List<Installment>,
+    /** De la Transaction de la compra original — no viven en el plan, pero hacen falta para poder editarlo. */
+    val merchant: String? = null,
+    val categoryId: String? = null,
+    val description: String? = null,
+    val reference: String? = null,
 )
 
 @Serializable
@@ -54,4 +59,16 @@ data class CreateInstallmentPlanRequest(
     val interestRate: Double = 0.0,
     val categoryId: String? = null,
     val description: String? = null,
+)
+
+@Serializable
+data class UpdateInstallmentPlanRequest(
+    val amount: Double,
+    val date: String,
+    val merchant: String,
+    val installmentCount: Int,
+    val interestRate: Double = 0.0,
+    val categoryId: String? = null,
+    val description: String? = null,
+    val reference: String? = null,
 )

@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EventRepeat
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Button
@@ -50,6 +51,7 @@ import com.nexora.android.data.account.AccountType
 import com.nexora.android.data.category.Category
 import com.nexora.android.data.category.CategoryRepository
 import com.nexora.android.data.creditcard.CreditCardRepository
+import com.nexora.android.data.installment.InstallmentPlan
 import com.nexora.android.data.installment.InstallmentRepository
 import com.nexora.android.data.transaction.Transaction
 import com.nexora.android.data.transaction.TransactionRepository
@@ -86,7 +88,13 @@ fun CardDetailScreen(
     var showPurchaseSheet by remember { mutableStateOf(false) }
     var showPaymentSheet by remember { mutableStateOf(false) }
     var showInstallmentPlanSheet by remember { mutableStateOf(false) }
+    var editingPurchase by remember { mutableStateOf<Transaction?>(null) }
+    var editingPlan by remember { mutableStateOf<InstallmentPlan?>(null) }
     val state = viewModel.uiState
+
+    // Las compras de un plan MSI/MCI se editan desde su propio plan (montos/cuotas), no desde aquí.
+    val planTransactionIds = (installmentPlansViewModel.uiState as? InstallmentPlansUiState.Success)
+        ?.plans?.map { it.transactionId }?.toSet() ?: emptySet()
 
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars)) {
@@ -125,6 +133,12 @@ fun CardDetailScreen(
                     onPayInstallment = { planId, installmentId ->
                         installmentPlansViewModel.payInstallment(planId, installmentId, installmentsFallbackError)
                     },
+                    onEditPlan = { plan -> editingPlan = plan },
+                    editablePurchaseIds = state.transactions
+                        .filter { it.type == TransactionType.CREDIT_CARD_PURCHASE && it.id !in planTransactionIds }
+                        .map { it.id }
+                        .toSet(),
+                    onEditPurchase = { transaction -> editingPurchase = transaction },
                 )
             }
         }
@@ -170,6 +184,38 @@ fun CardDetailScreen(
                 },
             )
         }
+
+        val purchaseToEdit = editingPurchase
+        if (purchaseToEdit != null && state is CardDetailUiState.Success) {
+            EditCreditCardPurchaseSheet(
+                cardId = cardId,
+                purchase = purchaseToEdit,
+                creditCardRepository = creditCardRepository,
+                categoryRepository = categoryRepository,
+                categories = state.categories,
+                onDismiss = { editingPurchase = null },
+                onSaved = {
+                    editingPurchase = null
+                    viewModel.refresh(fallbackError)
+                },
+            )
+        }
+
+        val planToEdit = editingPlan
+        if (planToEdit != null && state is CardDetailUiState.Success) {
+            EditInstallmentPlanSheet(
+                plan = planToEdit,
+                installmentRepository = installmentRepository,
+                categoryRepository = categoryRepository,
+                categories = state.categories,
+                onDismiss = { editingPlan = null },
+                onSaved = {
+                    editingPlan = null
+                    viewModel.refresh(fallbackError)
+                    installmentPlansViewModel.refresh(installmentsFallbackError)
+                },
+            )
+        }
     }
 }
 
@@ -184,6 +230,9 @@ private fun CardDetailContent(
     payError: String?,
     onRetryInstallmentPlans: () -> Unit,
     onPayInstallment: (planId: String, installmentId: String) -> Unit,
+    onEditPlan: (InstallmentPlan) -> Unit,
+    editablePurchaseIds: Set<String>,
+    onEditPurchase: (Transaction) -> Unit,
 ) {
     val card = state.card
     val usage = if (card.creditLimit > 0) (card.currentDebt / card.creditLimit).coerceIn(0.0, 1.0).toFloat() else 0f
@@ -245,6 +294,7 @@ private fun CardDetailContent(
                 payError = payError,
                 onRetry = onRetryInstallmentPlans,
                 onPayInstallment = onPayInstallment,
+                onEditPlan = onEditPlan,
             )
 
             Text(
@@ -264,7 +314,11 @@ private fun CardDetailContent(
         }
 
         items(state.transactions, key = { it.id }) { transaction ->
-            CardTransactionRow(transaction, categoryNameById)
+            CardTransactionRow(
+                transaction = transaction,
+                categoryNameById = categoryNameById,
+                onEditClick = if (transaction.id in editablePurchaseIds) ({ onEditPurchase(transaction) }) else null,
+            )
         }
 
         item { androidx.compose.foundation.layout.Spacer(Modifier.height(24.dp)) }
@@ -284,7 +338,7 @@ private fun StatTile(label: String, value: String, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun CardTransactionRow(transaction: Transaction, categoryNameById: Map<String, String>) {
+private fun CardTransactionRow(transaction: Transaction, categoryNameById: Map<String, String>, onEditClick: (() -> Unit)?) {
     val typeLabel = when (transaction.type) {
         TransactionType.CREDIT_CARD_PAYMENT -> stringResource(R.string.cards_type_payment)
         else -> stringResource(R.string.cards_type_purchase)
@@ -294,7 +348,7 @@ private fun CardTransactionRow(transaction: Transaction, categoryNameById: Map<S
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column {
+        Column(Modifier.weight(1f)) {
             Text(transaction.merchant ?: typeLabel, style = MaterialTheme.typography.bodyLarge)
             val subtitle = listOfNotNull(
                 formatDateShort(transaction.date),
@@ -309,5 +363,10 @@ private fun CardTransactionRow(transaction: Transaction, categoryNameById: Map<S
         }
         val sign = if (transaction.balanceEffect >= 0) "+" else ""
         Text("$sign${formatCurrency(transaction.balanceEffect)}", style = MaterialTheme.typography.titleSmall, color = amountColor)
+        if (onEditClick != null) {
+            IconButton(onClick = onEditClick) {
+                Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.action_edit))
+            }
+        }
     }
 }

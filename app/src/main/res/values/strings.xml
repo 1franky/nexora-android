@@ -23,6 +23,10 @@
     <string name="register_login_link">Inicia sesión</string>
     <string name="back">Atrás</string>
 
+    <!-- Común -->
+    <string name="action_edit">Editar</string>
+    <string name="action_save">Guardar</string>
+
     <!-- Navigation -->
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_transactions">Movimientos</string>
@@ -86,6 +90,7 @@
     <string name="accounts_included_available_balance">Disponible</string>
     <string name="accounts_included_net_worth">Patrimonio</string>
     <string name="accounts_dialog_title">Nueva cuenta</string>
+    <string name="accounts_edit_title">Editar cuenta</string>
     <string name="accounts_dialog_name">Nombre</string>
     <string name="accounts_dialog_type">Tipo</string>
     <string name="accounts_dialog_currency">Moneda</string>
@@ -109,6 +114,7 @@
     <string name="cards_limit">Límite</string>
     <string name="cards_next_payment">Próximo pago</string>
     <string name="cards_dialog_title">Nueva tarjeta</string>
+    <string name="cards_edit_title">Editar tarjeta</string>
     <string name="cards_dialog_name">Nombre</string>
     <string name="cards_dialog_bank">Banco</string>
     <string name="cards_dialog_last4">Últimos 4 dígitos</string>
@@ -128,6 +134,7 @@
     <string name="cards_detail_movements">Movimientos</string>
     <string name="cards_detail_empty">Todavía no hay compras ni pagos en esta tarjeta.</string>
     <string name="purchase_dialog_title">Registrar compra</string>
+    <string name="purchase_dialog_edit_title">Editar compra</string>
     <string name="purchase_dialog_amount">Monto</string>
     <string name="purchase_dialog_date">Fecha</string>
     <string name="purchase_dialog_merchant">Comercio</string>
@@ -177,6 +184,8 @@
     <string name="installments_dialog_category">Categoría</string>
     <string name="installments_dialog_description">Descripción</string>
     <string name="installments_dialog_submit">Registrar</string>
+    <string name="installments_edit_title">Editar plan MSI/MCI</string>
+    <string name="installments_edit_structural_locked_hint">Ya hay cuotas pagadas: no se puede cambiar el monto, la fecha ni el número de cuotas. Solo comercio, categoría y descripción.</string>
 
     <!-- Notificaciones (A7) -->
     <string name="notifications_title">Notificaciones</string>

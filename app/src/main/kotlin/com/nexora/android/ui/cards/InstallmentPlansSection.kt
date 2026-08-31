@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,6 +47,7 @@ fun InstallmentPlansSection(
     payError: String?,
     onRetry: () -> Unit,
     onPayInstallment: (planId: String, installmentId: String) -> Unit,
+    onEditPlan: (InstallmentPlan) -> Unit,
 ) {
     when (state) {
         InstallmentPlansUiState.Loading -> Box(Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
@@ -71,6 +74,7 @@ fun InstallmentPlansSection(
                             plan = plan,
                             payingInstallmentId = payingInstallmentId,
                             onPayInstallment = { installmentId -> onPayInstallment(plan.id, installmentId) },
+                            onEditClick = { onEditPlan(plan) },
                         )
                     }
                 }
@@ -80,7 +84,12 @@ fun InstallmentPlansSection(
 }
 
 @Composable
-private fun InstallmentPlanCard(plan: InstallmentPlan, payingInstallmentId: String?, onPayInstallment: (String) -> Unit) {
+private fun InstallmentPlanCard(
+    plan: InstallmentPlan,
+    payingInstallmentId: String?,
+    onPayInstallment: (String) -> Unit,
+    onEditClick: () -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(
@@ -100,6 +109,9 @@ private fun InstallmentPlanCard(plan: InstallmentPlan, payingInstallmentId: Stri
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
             )
+            IconButton(onClick = onEditClick, modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.action_edit), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             Icon(
                 if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                 contentDescription = null,

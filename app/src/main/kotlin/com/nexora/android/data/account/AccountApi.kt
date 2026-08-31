@@ -4,6 +4,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface AccountApi {
     @GET("accounts")
@@ -11,4 +13,7 @@ interface AccountApi {
 
     @POST("accounts")
     suspend fun createAccount(@Header("Idempotency-Key") idempotencyKey: String, @Body request: CreateAccountRequest): Account
+
+    @PUT("accounts/{id}")
+    suspend fun updateAccount(@Path("id") id: String, @Body request: UpdateAccountRequest): Account
 }

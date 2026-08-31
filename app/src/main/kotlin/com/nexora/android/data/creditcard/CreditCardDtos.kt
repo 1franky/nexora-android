@@ -37,7 +37,26 @@ data class CreateCreditCardRequest(
 )
 
 @Serializable
+data class UpdateCreditCardRequest(
+    val name: String,
+    val bank: String,
+    val creditLimit: Double,
+    val closingDay: Int,
+    val paymentDueDay: Int,
+)
+
+@Serializable
 data class CreditCardPurchaseRequest(
+    val amount: Double,
+    val date: String,
+    val merchant: String,
+    val categoryId: String? = null,
+    val description: String? = null,
+    val reference: String? = null,
+)
+
+@Serializable
+data class UpdateCreditCardPurchaseRequest(
     val amount: Double,
     val date: String,
     val merchant: String,

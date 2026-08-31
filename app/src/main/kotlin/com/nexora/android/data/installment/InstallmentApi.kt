@@ -4,6 +4,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface InstallmentApi {
@@ -16,6 +17,9 @@ interface InstallmentApi {
 
     @GET("credit-cards/{cardId}/installment-plans")
     suspend fun listForCard(@Path("cardId") cardId: String): List<InstallmentPlan>
+
+    @PUT("installment-plans/{id}")
+    suspend fun updatePlan(@Path("id") id: String, @Body request: UpdateInstallmentPlanRequest): InstallmentPlan
 
     @POST("installment-plans/{id}/installments/{installmentId}/pay")
     suspend fun payInstallment(
