@@ -37,8 +37,10 @@ android {
         // 1.1.0: edición de cuentas/tarjetas/compras/planes MSI-MCI, búsqueda en
         // Cuentas y Tarjetas, rediseño del dashboard (hero de patrimonio + accesos
         // rápidos funcionales) y conversión de moneda multi-currency (backlog notas.txt).
-        versionCode = 3
-        versionName = "1.1.0"
+        // 1.2.0: editar/borrar movimientos, excluir AFORE/PPR al pagar tarjeta, fix de
+        // navegación del bottom nav (volver al Dashboard desde el detalle de una tarjeta).
+        versionCode = 4
+        versionName = "1.2.0"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
