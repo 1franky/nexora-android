@@ -46,6 +46,41 @@ class TransactionsViewModel(
     var uiState by mutableStateOf<TransactionsUiState>(TransactionsUiState.Loading)
         private set
 
+    /** Movimiento pendiente de confirmar borrado (null = el diálogo de confirmación está cerrado). */
+    var pendingDelete by mutableStateOf<Transaction?>(null)
+        private set
+    var isDeleting by mutableStateOf(false)
+        private set
+    var deleteError by mutableStateOf<String?>(null)
+        private set
+
+    fun requestDelete(transaction: Transaction) {
+        pendingDelete = transaction
+        deleteError = null
+    }
+
+    fun cancelDelete() {
+        pendingDelete = null
+        deleteError = null
+    }
+
+    fun confirmDelete(fallbackError: String) {
+        val transaction = pendingDelete ?: return
+        isDeleting = true
+        deleteError = null
+        viewModelScope.launch {
+            try {
+                transactionRepository.deleteTransaction(transaction.id, fallbackError)
+                isDeleting = false
+                pendingDelete = null
+                refresh(fallbackError)
+            } catch (e: ApiException) {
+                isDeleting = false
+                deleteError = e.message ?: fallbackError
+            }
+        }
+    }
+
     fun load(fallbackError: String) {
         viewModelScope.launch {
             uiState = TransactionsUiState.Loading

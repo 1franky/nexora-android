@@ -25,6 +25,7 @@ import com.nexora.android.data.transaction.Transaction
 import com.nexora.android.data.transaction.TransactionApi
 import com.nexora.android.data.transaction.TransactionType
 import com.nexora.android.data.transaction.TransferResult
+import com.nexora.android.data.transaction.UpdateTransactionRequest
 
 /** Fakes que solo registran con qué se les llamó — JVM puro, sin mocking library (ver AppContainer sobre el criterio de evitar dependencias). */
 
@@ -112,6 +113,10 @@ class FakeTransactionApi : TransactionApi {
         lastTransferRequest = request
         return TransferResult(dummyTransaction(request.fromAccountId), dummyTransaction(request.toAccountId))
     }
+
+    override suspend fun updateTransaction(id: String, request: UpdateTransactionRequest): Transaction = error("no usado en estos tests")
+
+    override suspend fun deleteTransaction(id: String) = error("no usado en estos tests")
 }
 
 class FakeInstallmentApi : InstallmentApi {

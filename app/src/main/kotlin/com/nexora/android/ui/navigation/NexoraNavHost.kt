@@ -34,6 +34,41 @@ import com.nexora.android.ui.transactions.MovementKind
 import com.nexora.android.ui.transactions.TransactionsScreen
 
 /**
+ * Navega a uno de los destinos "de nivel superior" (los del bottom nav, y
+ * Cards como destino de las acciones rápidas "Comprar"/"Pagar" del
+ * dashboard) de forma robusta.
+ *
+ * Si el destino ya está vivo en el back stack — p.ej. se volvió a Tarjetas
+ * con la flecha "atrás" desde el detalle de una tarjeta — un `navigate()`
+ * con `popUpTo(startDestination){saveState=true}; launchSingleTop=true;
+ * restoreState=true` (el patrón estándar de Compose Navigation para bottom
+ * nav) no lo detecta: ese `popUpTo` sí quita las pantallas de encima, pero
+ * `launchSingleTop`/`restoreState` solo reutilizan la entrada de destino si
+ * coincide con el *tope* del stack en ese momento — y en este caso el tope
+ * ya es el propio destino buscado, así que Compose Navigation lo trata como
+ * "ya estás aquí" y no dispara la recomposición que muestra la pantalla.
+ * Resultado (reproducido a mano): Dashboard -> Tarjetas -> detalle de
+ * tarjeta -> atrás -> tocar "Dashboard" en el bottom nav no hacía nada; solo
+ * el gesto/botón de atrás del sistema regresaba al dashboard.
+ *
+ * `popBackStack(route, inclusive = false)` sí resuelve ese caso (es
+ * exactamente lo que hace el botón de atrás del sistema). Si el destino NO
+ * está vivo en el stack (primera visita, o su estado fue guardado y
+ * removido por un cambio de pestaña anterior), `popBackStack` devuelve
+ * `false` sin tocar el stack, y se cae al patrón estándar de arriba.
+ */
+private fun NavHostController.navigateToTopLevel(route: String) {
+    val poppedToExisting = popBackStack(route, false)
+    if (!poppedToExisting) {
+        navigate(route) {
+            popUpTo(graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+}
+
+/**
  * Un único NavHost; qué se ve depende de isAuthenticated (fuente de verdad:
  * TokenStore vía AuthRepository, ver AppContainer). Ninguna pantalla navega
  * "a Dashboard" o "a Login" por sí misma tras loguearse/cerrar sesión — solo
@@ -78,11 +113,7 @@ private fun AuthenticatedAwareNavHost(
         bottomBar = {
             if (showBottomBar) {
                 NexoraBottomBar(currentRoute = currentRoute) { destination ->
-                    navController.navigate(destination.route) {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    navController.navigateToTopLevel(destination.route)
                 }
             }
         },
@@ -115,7 +146,7 @@ private fun AuthenticatedAwareNavHost(
                         authRepository = container.authRepository,
                         onNavigateToAccounts = { navController.navigate(NexoraDestination.Accounts.route) },
                         onNavigateToNewTransaction = { kind -> navController.navigate(NexoraDestination.NewTransaction.routeFor(kind)) },
-                        onNavigateToCards = { navController.navigate(NexoraDestination.Cards.route) },
+                        onNavigateToCards = { navController.navigateToTopLevel(NexoraDestination.Cards.route) },
                     )
                 }
                 composable(NexoraDestination.Accounts.route) {
