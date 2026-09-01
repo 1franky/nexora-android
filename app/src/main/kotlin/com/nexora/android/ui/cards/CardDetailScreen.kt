@@ -176,7 +176,14 @@ fun CardDetailScreen(
             CreditCardPaymentSheet(
                 cardId = cardId,
                 creditCardRepository = creditCardRepository,
-                accounts = state.accounts.filter { it.status == AccountStatus.ACTIVE && it.type != AccountType.CREDIT_CARD },
+                // No se puede pagar una tarjeta con otra tarjeta, ni con una cuenta de retiro
+                // (AFORE/PPR) — regla de negocio en nexora-api (TransactionService.recordCreditCardPayment).
+                accounts = state.accounts.filter {
+                    it.status == AccountStatus.ACTIVE &&
+                        it.type != AccountType.CREDIT_CARD &&
+                        it.type != AccountType.AFORE &&
+                        it.type != AccountType.PPR
+                },
                 onDismiss = { showPaymentSheet = false },
                 onSaved = {
                     showPaymentSheet = false

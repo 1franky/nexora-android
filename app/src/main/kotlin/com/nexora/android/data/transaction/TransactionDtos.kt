@@ -39,6 +39,15 @@ data class CreateTransactionRequest(
     val description: String? = null,
 )
 
+/** Solo INCOME/EXPENSE se editan por aquí — ver TransactionController en nexora-api. */
+@Serializable
+data class UpdateTransactionRequest(
+    val amount: Double,
+    val date: String,
+    val categoryId: String? = null,
+    val description: String? = null,
+)
+
 @Serializable
 data class CreateTransferRequest(
     val fromAccountId: String,

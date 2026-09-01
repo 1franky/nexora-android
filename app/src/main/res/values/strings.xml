@@ -26,6 +26,7 @@
     <!-- Común -->
     <string name="action_edit">Editar</string>
     <string name="action_save">Guardar</string>
+    <string name="action_delete">Eliminar</string>
 
     <!-- Navigation -->
     <string name="nav_dashboard">Dashboard</string>
@@ -70,6 +71,9 @@
     <string name="transactions_kind_transfer">Transferir</string>
     <string name="transactions_no_other_accounts">Necesitas otra cuenta activa para transferir.</string>
     <string name="transactions_filter_content_description">Filtrar por cuenta</string>
+    <string name="transactions_edit_title">Editar movimiento</string>
+    <string name="transactions_delete_title">Eliminar movimiento</string>
+    <string name="transactions_delete_message">¿Seguro que quieres eliminar este movimiento? Esta acción no se puede deshacer.</string>
     <string name="new_category_dialog_title">Nueva categoría</string>
     <string name="new_category_dialog_name">Nombre</string>
     <string name="new_category_dialog_create">Crear</string>

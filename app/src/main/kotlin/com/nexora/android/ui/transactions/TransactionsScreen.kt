@@ -17,8 +17,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -29,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,6 +60,12 @@ import com.nexora.android.ui.common.formatCurrency
 import com.nexora.android.ui.common.formatDateShort
 import com.nexora.android.ui.theme.NexoraExtendedTheme
 
+/** Editar solo aplica a lo que la propia hoja "Nuevo movimiento" crea; transferencias se editan borrando/recreando. */
+private val EDITABLE_TYPES = setOf(TransactionType.INCOME, TransactionType.EXPENSE)
+
+/** Compra/pago de tarjeta se gestionan desde el detalle de la tarjeta, no desde Movimientos. */
+private val DELETABLE_TYPES = setOf(TransactionType.INCOME, TransactionType.EXPENSE, TransactionType.TRANSFER)
+
 @Composable
 fun TransactionsScreen(
     transactionRepository: TransactionRepository,
@@ -74,6 +84,7 @@ fun TransactionsScreen(
     // Si se llega desde una acción rápida del dashboard (ingreso/gasto/transferir), la
     // hoja de nuevo movimiento se abre sola con ese tipo ya preseleccionado.
     var showNewTransactionSheet by remember { mutableStateOf(initialKind != null) }
+    var editingTransaction by remember { mutableStateOf<Transaction?>(null) }
     val state = viewModel.uiState
 
     Scaffold(
@@ -103,6 +114,8 @@ fun TransactionsScreen(
                 is TransactionsUiState.Success -> TransactionsContent(
                     state = state,
                     onSelectAccount = { viewModel.selectAccount(it, fallbackError) },
+                    onEdit = { editingTransaction = it },
+                    onDelete = { viewModel.requestDelete(it) },
                 )
             }
 
@@ -121,6 +134,45 @@ fun TransactionsScreen(
                     initialKind = initialKind ?: MovementKind.EXPENSE,
                 )
             }
+
+            if (editingTransaction != null && state is TransactionsUiState.Success) {
+                EditTransactionSheet(
+                    transaction = editingTransaction!!,
+                    transactionRepository = transactionRepository,
+                    categoryRepository = categoryRepository,
+                    categories = state.categories,
+                    onDismiss = { editingTransaction = null },
+                    onSaved = {
+                        editingTransaction = null
+                        viewModel.refresh(fallbackError)
+                    },
+                )
+            }
+
+            if (viewModel.pendingDelete != null) {
+                AlertDialog(
+                    onDismissRequest = { if (!viewModel.isDeleting) viewModel.cancelDelete() },
+                    title = { Text(stringResource(R.string.transactions_delete_title)) },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (viewModel.deleteError != null) {
+                                Text(viewModel.deleteError!!, color = MaterialTheme.colorScheme.error)
+                            }
+                            Text(stringResource(R.string.transactions_delete_message))
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.confirmDelete(fallbackError) }, enabled = !viewModel.isDeleting) {
+                            Text(stringResource(R.string.action_delete))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { viewModel.cancelDelete() }, enabled = !viewModel.isDeleting) {
+                            Text(stringResource(R.string.back))
+                        }
+                    },
+                )
+            }
         }
     }
 }
@@ -129,6 +181,8 @@ fun TransactionsScreen(
 private fun TransactionsContent(
     state: TransactionsUiState.Success,
     onSelectAccount: (String?) -> Unit,
+    onEdit: (Transaction) -> Unit,
+    onDelete: (Transaction) -> Unit,
 ) {
     var filterExpanded by remember { mutableStateOf(false) }
     val accountNameById = remember(state.accounts) { state.accounts.associate { it.id to it.name } }
@@ -176,6 +230,8 @@ private fun TransactionsContent(
                         accountName = accountNameById[transaction.accountId],
                         relatedLabel = resolveRelatedLabel(transaction, accountNameById, categoryNameById),
                         showAccount = state.selectedAccountId == null,
+                        onEdit = if (transaction.type in EDITABLE_TYPES) ({ onEdit(transaction) }) else null,
+                        onDelete = if (transaction.type in DELETABLE_TYPES) ({ onDelete(transaction) }) else null,
                     )
                 }
             }
@@ -192,7 +248,14 @@ private fun resolveRelatedLabel(
     ?: transaction.merchant
 
 @Composable
-private fun TransactionRow(transaction: Transaction, accountName: String?, relatedLabel: String?, showAccount: Boolean) {
+private fun TransactionRow(
+    transaction: Transaction,
+    accountName: String?,
+    relatedLabel: String?,
+    showAccount: Boolean,
+    onEdit: (() -> Unit)?,
+    onDelete: (() -> Unit)?,
+) {
     val (icon, tint) = iconAndTintFor(transaction)
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
@@ -223,6 +286,16 @@ private fun TransactionRow(transaction: Transaction, accountName: String?, relat
             style = MaterialTheme.typography.titleSmall,
             color = amountColor,
         )
+        if (onEdit != null) {
+            IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.action_edit), modifier = Modifier.size(16.dp))
+            }
+        }
+        if (onDelete != null) {
+            IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.action_delete), modifier = Modifier.size(16.dp))
+            }
+        }
     }
 }
 
