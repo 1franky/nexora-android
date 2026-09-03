@@ -17,3 +17,11 @@ data class TokenResponse(
     val tokenType: String = "Bearer",
     val expiresInSeconds: Long,
 )
+
+/** A11: cuerpo vacío (200) exista o no la cuenta — ver AuthRepository.forgotPassword. */
+@Serializable
+data class ForgotPasswordRequest(val email: String)
+
+/** A11: éxito 204; error 401 con mensaje genérico ("Código inválido o expirado."). */
+@Serializable
+data class ResetPasswordRequest(val email: String, val code: String, val newPassword: String)

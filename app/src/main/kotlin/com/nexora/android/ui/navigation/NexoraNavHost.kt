@@ -32,10 +32,12 @@ import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.dashboard.MonthExpensesScreen
 import com.nexora.android.ui.dashboard.QuincenaScreen
 import com.nexora.android.ui.dashboard.UpcomingPaymentsScreen
+import com.nexora.android.ui.forgotpassword.ForgotPasswordScreen
 import com.nexora.android.ui.lock.LockScreen
 import com.nexora.android.ui.login.LoginScreen
 import com.nexora.android.ui.notifications.NotificationsScreen
 import com.nexora.android.ui.register.RegisterScreen
+import com.nexora.android.ui.resetpassword.ResetPasswordScreen
 import com.nexora.android.ui.settings.SettingsScreen
 import com.nexora.android.ui.transactions.MovementKind
 import com.nexora.android.ui.transactions.TransactionsScreen
@@ -180,12 +182,42 @@ private fun AuthenticatedAwareNavHost(
                     LoginScreen(
                         authRepository = container.authRepository,
                         onNavigateToRegister = { navController.navigate(NexoraDestination.Register.route) },
+                        onNavigateToForgotPassword = { navController.navigate(NexoraDestination.ForgotPassword.route) },
                     )
                 }
                 composable(NexoraDestination.Register.route) {
                     RegisterScreen(
                         authRepository = container.authRepository,
                         onNavigateBack = { navController.popBackStack() },
+                    )
+                }
+                composable(NexoraDestination.ForgotPassword.route) {
+                    ForgotPasswordScreen(
+                        authRepository = container.authRepository,
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToResetPassword = { email ->
+                            navController.navigate(NexoraDestination.ResetPassword.routeFor(email))
+                        },
+                    )
+                }
+                composable(
+                    route = NexoraDestination.ResetPassword.route,
+                    arguments = listOf(navArgument("email") { type = NavType.StringType; defaultValue = "" }),
+                ) { backStackEntry ->
+                    val email = backStackEntry.arguments?.getString("email").orEmpty()
+                    ResetPasswordScreen(
+                        authRepository = container.authRepository,
+                        initialEmail = email,
+                        onNavigateBack = { navController.popBackStack() },
+                        // Limpia el back stack igual que el logout (ver LaunchedEffect de más
+                        // arriba) — el backend ya revocó las sesiones activas, no tiene
+                        // sentido dejar ForgotPassword/ResetPassword/Login apiladas.
+                        onNavigateToLogin = {
+                            navController.navigate(NexoraDestination.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
                     )
                 }
                 composable(NexoraDestination.Dashboard.route) {

@@ -37,4 +37,24 @@ class AuthRepository(
             runCatching { authApi.logout(RefreshRequest(current.refreshToken)) }
         }
     }
+
+    /**
+     * A11: siempre 200 con cuerpo vacío, exista o no una cuenta con ese email (el backend
+     * nunca revela si existe, ver plan-recuperacion-password.md sección 3.7) — por eso no
+     * hay nada que devolver ni leer de la respuesta. No toca [tokenStore]: no hay sesión
+     * involucrada todavía.
+     */
+    suspend fun forgotPassword(email: String, fallbackError: String) {
+        apiCall(fallbackError) { authApi.forgotPassword(ForgotPasswordRequest(email)) }
+    }
+
+    /**
+     * A11: éxito 204, error 401 con mensaje genérico ("Código inválido o expirado.") que ya
+     * llega en español desde el backend — [apiCall] lo propaga tal cual. No toca
+     * [tokenStore]: el backend revoca todas las sesiones activas del usuario al resetear, así
+     * que la app no guarda tokens acá; el usuario vuelve a loguearse normal.
+     */
+    suspend fun resetPassword(email: String, code: String, newPassword: String, fallbackError: String) {
+        apiCall(fallbackError) { authApi.resetPassword(ResetPasswordRequest(email, code, newPassword)) }
+    }
 }

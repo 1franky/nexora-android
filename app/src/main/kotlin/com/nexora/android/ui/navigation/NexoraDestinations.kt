@@ -9,6 +9,18 @@ sealed class NexoraDestination(val route: String) {
     data object Register : NexoraDestination("register")
     data object Dashboard : NexoraDestination("dashboard")
 
+    /** Recuperación de contraseña (A11): solo pide el email, ver plan-recuperacion-password.md sección 9.1. */
+    data object ForgotPassword : NexoraDestination("forgot-password")
+
+    /**
+     * Segundo paso de A11: código + contraseña nueva. `email` es opcional (mismo patrón que
+     * [Accounts]) — llega prellenado desde [ForgotPassword], pero la pantalla también permite
+     * llegar sin argumento y escribirlo a mano.
+     */
+    data object ResetPassword : NexoraDestination("reset-password?email={email}") {
+        fun routeFor(email: String) = "reset-password?email=$email"
+    }
+
     /**
      * Lista de cuentas, opcionalmente filtrada por tipo — usada por los accesos
      * "Patrimonio neto" (sin filtro, todas) y "Disponible" (solo débito) del
