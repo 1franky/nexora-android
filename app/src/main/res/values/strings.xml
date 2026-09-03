@@ -10,6 +10,7 @@
     <string name="login_create_account">Crear una cuenta</string>
     <string name="login_error_generic">Ocurrió un error. Intenta de nuevo.</string>
     <string name="login_error_invalid_credentials">Email o contraseña inválidos.</string>
+    <string name="login_forgot_password">¿Olvidaste tu contraseña?</string>
     <string name="password_toggle_show">Mostrar contraseña</string>
     <string name="password_toggle_hide">Ocultar contraseña</string>
 
@@ -229,4 +230,19 @@
     <string name="settings_lock_toggle">Bloquear con huella digital</string>
     <string name="settings_lock_toggle_hint">Pide huella (o el PIN/patrón del dispositivo) al abrir la app o volver de segundo plano.</string>
     <string name="settings_lock_unavailable">Tu dispositivo no tiene huella digital ni bloqueo de pantalla configurados.</string>
+
+    <!-- Recuperación de contraseña por OTP (A11) -->
+    <string name="forgot_password_title">Recupera tu contraseña</string>
+    <string name="forgot_password_subtitle">Ingresa tu email y te enviamos un código para restablecerla.</string>
+    <string name="forgot_password_submit">Enviar código</string>
+    <string name="forgot_password_sent_title">Revisa tu correo</string>
+    <string name="forgot_password_sent_message">Si existe una cuenta con ese correo, te enviamos un código de 6 dígitos. Expira en 10 minutos.</string>
+    <string name="forgot_password_continue">Continuar</string>
+    <string name="reset_password_title">Ingresa tu código</string>
+    <string name="reset_password_subtitle">Escribe el código que te enviamos y tu contraseña nueva.</string>
+    <string name="reset_password_code_label">Código (6 dígitos)</string>
+    <string name="reset_password_new_password_label">Contraseña nueva</string>
+    <string name="reset_password_confirm_password_label">Confirmar contraseña</string>
+    <string name="reset_password_submit">Restablecer contraseña</string>
+    <string name="reset_password_mismatch">Las contraseñas no coinciden.</string>
 </resources>

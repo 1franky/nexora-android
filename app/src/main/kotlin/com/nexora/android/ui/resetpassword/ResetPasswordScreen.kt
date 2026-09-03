@@ -1,10 +1,7 @@
-package com.nexora.android.ui.login
+package com.nexora.android.ui.resetpassword
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,9 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -26,15 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,19 +40,28 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nexora.android.R
 import com.nexora.android.data.auth.AuthRepository
-import com.nexora.android.ui.theme.NexoraExtendedTheme
+import com.nexora.android.ui.login.nexoraFieldColors
 
+/**
+ * Segundo paso de A11: código de 6 dígitos + contraseña nueva + confirmar.
+ * Éxito -> [onNavigateToLogin], que en NexoraNavHost limpia el back stack
+ * (mismo patrón que el logout: `popUpTo(0) { inclusive = true }`) — el
+ * usuario vuelve a loguearse con la contraseña nueva, ya que el backend
+ * revocó todas sus sesiones activas.
+ */
 @Composable
-fun LoginScreen(
+fun ResetPasswordScreen(
     authRepository: AuthRepository,
-    onNavigateToRegister: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit,
+    initialEmail: String,
+    onNavigateBack: () -> Unit,
+    onNavigateToLogin: () -> Unit,
 ) {
-    val viewModel: LoginViewModel = viewModel(
-        factory = viewModelFactory { initializer { LoginViewModel(authRepository) } },
+    val viewModel: ResetPasswordViewModel = viewModel(
+        factory = viewModelFactory { initializer { ResetPasswordViewModel(authRepository, initialEmail) } },
     )
     val uiState = viewModel.uiState
     val fallbackError = stringResource(R.string.login_error_generic)
+    val passwordMismatchError = stringResource(R.string.reset_password_mismatch)
     var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
@@ -67,39 +70,24 @@ fun LoginScreen(
             .windowInsetsPadding(WindowInsets.systemBars)
             .imePadding()
             .padding(horizontal = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .background(NexoraExtendedTheme.colors.accentContainer, RoundedCornerShape(20.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.TrendingUp,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(30.dp),
-            )
+        IconButton(onClick = onNavigateBack, modifier = Modifier.padding(bottom = 8.dp)) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
         }
 
+        Text(stringResource(R.string.reset_password_title), style = MaterialTheme.typography.headlineMedium)
         Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(top = 18.dp),
-        )
-        Text(
-            text = stringResource(R.string.app_tagline),
+            text = stringResource(R.string.reset_password_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 6.dp),
+            modifier = Modifier.padding(top = 8.dp),
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 36.dp),
+                .padding(top = 28.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             OutlinedTextField(
@@ -107,18 +95,28 @@ fun LoginScreen(
                 onValueChange = viewModel::onEmailChange,
                 label = { Text(stringResource(R.string.login_email_label)) },
                 singleLine = true,
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Email),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = nexoraFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
             )
 
             OutlinedTextField(
-                value = uiState.password,
-                onValueChange = viewModel::onPasswordChange,
-                label = { Text(stringResource(R.string.login_password_label)) },
+                value = uiState.code,
+                onValueChange = viewModel::onCodeChange,
+                label = { Text(stringResource(R.string.reset_password_code_label)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                colors = nexoraFieldColors(),
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            OutlinedTextField(
+                value = uiState.newPassword,
+                onValueChange = viewModel::onNewPasswordChange,
+                label = { Text(stringResource(R.string.reset_password_new_password_label)) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
                     val description = stringResource(
                         if (passwordVisible) R.string.password_toggle_hide else R.string.password_toggle_show,
@@ -134,6 +132,17 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
+            OutlinedTextField(
+                value = uiState.confirmPassword,
+                onValueChange = viewModel::onConfirmPasswordChange,
+                label = { Text(stringResource(R.string.reset_password_confirm_password_label)) },
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                colors = nexoraFieldColors(),
+                modifier = Modifier.fillMaxWidth(),
+            )
+
             if (uiState.error != null) {
                 Text(
                     text = uiState.error,
@@ -143,8 +152,8 @@ fun LoginScreen(
             }
 
             Button(
-                onClick = { viewModel.submit(fallbackError) },
-                enabled = !uiState.isLoading && uiState.email.isNotBlank() && uiState.password.isNotBlank(),
+                onClick = { viewModel.submit(fallbackError, passwordMismatchError, onSuccess = onNavigateToLogin) },
+                enabled = uiState.isSubmittable,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -156,35 +165,9 @@ fun LoginScreen(
                 if (uiState.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text(stringResource(R.string.login_submit), style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.reset_password_submit), style = MaterialTheme.typography.titleSmall)
                 }
-            }
-
-            TextButton(onClick = onNavigateToForgotPassword, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.login_forgot_password), style = MaterialTheme.typography.labelLarge)
-            }
-        }
-
-        Row(
-            modifier = Modifier.padding(top = 28.dp, bottom = 24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.login_no_account) + " ",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            TextButton(onClick = onNavigateToRegister) {
-                Text(stringResource(R.string.login_create_account), style = MaterialTheme.typography.labelLarge)
             }
         }
     }
 }
-
-@Composable
-internal fun nexoraFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = MaterialTheme.colorScheme.primary,
-    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-    focusedContainerColor = MaterialTheme.colorScheme.surface,
-    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-)
