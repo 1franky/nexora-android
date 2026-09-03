@@ -53,6 +53,8 @@ import com.nexora.android.ui.common.formatCurrency
 fun AccountsScreen(
     accountRepository: AccountRepository,
     onNavigateBack: () -> Unit,
+    /** Si no es null, solo se listan cuentas de este tipo — usado por el acceso "Disponible" del dashboard (solo débito). */
+    filterType: AccountType? = null,
 ) {
     val viewModel: AccountsViewModel = viewModel(
         factory = viewModelFactory { initializer { AccountsViewModel(accountRepository) } },
@@ -83,7 +85,10 @@ fun AccountsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
-                    Text(stringResource(R.string.accounts_title), style = MaterialTheme.typography.headlineSmall)
+                    Text(
+                        if (filterType != null) accountTypeLabel(filterType) else stringResource(R.string.accounts_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
                 }
 
                 when (state) {
@@ -101,7 +106,10 @@ fun AccountsScreen(
                         }
                     }
                     is AccountsUiState.Success -> {
-                        if (state.accounts.isEmpty()) {
+                        val typedAccounts = remember(state.accounts, filterType) {
+                            if (filterType != null) state.accounts.filter { it.type == filterType } else state.accounts
+                        }
+                        if (typedAccounts.isEmpty()) {
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Text(
                                     stringResource(R.string.accounts_empty),
@@ -119,8 +127,8 @@ fun AccountsScreen(
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp),
                             )
-                            val filteredAccounts = remember(state.accounts, search) {
-                                state.accounts.filter { it.name.contains(search, ignoreCase = true) }
+                            val filteredAccounts = remember(typedAccounts, search) {
+                                typedAccounts.filter { it.name.contains(search, ignoreCase = true) }
                             }
                             if (filteredAccounts.isEmpty()) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

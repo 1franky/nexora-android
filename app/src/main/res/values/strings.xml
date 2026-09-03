@@ -42,6 +42,7 @@
     <string name="dashboard_debt">Deuda</string>
     <string name="dashboard_next_payment">Próximo pago</string>
     <string name="dashboard_expenses_this_month">Gastos del mes</string>
+    <string name="dashboard_quincena">Quincena</string>
     <string name="dashboard_quick_actions">ACCIONES RÁPIDAS</string>
     <string name="dashboard_action_income">Ingreso</string>
     <string name="dashboard_action_expense">Gasto</string>
@@ -49,6 +50,18 @@
     <string name="dashboard_action_purchase">Compra</string>
     <string name="dashboard_action_pay">Pagar</string>
     <string name="dashboard_load_error">No se pudo cargar el dashboard.</string>
+
+    <!-- Resúmenes del dashboard (accesos de Próximo pago / Gastos del mes / Quincena) -->
+    <string name="upcoming_payments_title">Próximos pagos</string>
+    <string name="upcoming_payments_empty">No tienes pagos de tarjeta próximos.</string>
+    <string name="upcoming_payments_due_date">Vence</string>
+    <string name="month_expenses_title">Gastos del mes</string>
+    <string name="month_expenses_empty">Todavía no tienes gastos ni compras este mes.</string>
+    <string name="month_expenses_load_error">No se pudieron cargar los gastos del mes.</string>
+    <string name="quincena_title">Quincena</string>
+    <string name="quincena_subtitle_first_half">Del 1 al 15</string>
+    <string name="quincena_subtitle_second_half">Del 16 al fin de mes</string>
+    <string name="quincena_empty">No tienes pagos de tarjeta en esta quincena.</string>
     <string name="retry">Reintentar</string>
 
     <!-- Movimientos (A3) -->

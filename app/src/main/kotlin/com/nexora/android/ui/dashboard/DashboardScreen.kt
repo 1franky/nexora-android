@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,21 +44,26 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nexora.android.R
+import com.nexora.android.data.account.AccountType
 import com.nexora.android.data.auth.AuthRepository
 import com.nexora.android.data.dashboard.DashboardRepository
 import com.nexora.android.data.user.UserRepository
 import com.nexora.android.ui.common.formatCurrency
 import com.nexora.android.ui.theme.NexoraExtendedTheme
 import com.nexora.android.ui.transactions.MovementKind
+import java.time.LocalDate
 
 @Composable
 fun DashboardScreen(
     dashboardRepository: DashboardRepository,
     userRepository: UserRepository,
     authRepository: AuthRepository,
-    onNavigateToAccounts: () -> Unit,
+    onNavigateToAccounts: (AccountType?) -> Unit,
     onNavigateToNewTransaction: (MovementKind) -> Unit,
     onNavigateToCards: () -> Unit,
+    onNavigateToUpcomingPayments: () -> Unit,
+    onNavigateToMonthExpenses: () -> Unit,
+    onNavigateToQuincena: () -> Unit,
 ) {
     val viewModel: DashboardViewModel = viewModel(
         factory = viewModelFactory { initializer { DashboardViewModel(dashboardRepository, userRepository, authRepository) } },
@@ -86,6 +92,9 @@ fun DashboardScreen(
             onNavigateToAccounts = onNavigateToAccounts,
             onNavigateToNewTransaction = onNavigateToNewTransaction,
             onNavigateToCards = onNavigateToCards,
+            onNavigateToUpcomingPayments = onNavigateToUpcomingPayments,
+            onNavigateToMonthExpenses = onNavigateToMonthExpenses,
+            onNavigateToQuincena = onNavigateToQuincena,
         )
     }
 }
@@ -94,11 +103,17 @@ fun DashboardScreen(
 private fun DashboardContent(
     data: DashboardData,
     onLogout: () -> Unit,
-    onNavigateToAccounts: () -> Unit,
+    onNavigateToAccounts: (AccountType?) -> Unit,
     onNavigateToNewTransaction: (MovementKind) -> Unit,
     onNavigateToCards: () -> Unit,
+    onNavigateToUpcomingPayments: () -> Unit,
+    onNavigateToMonthExpenses: () -> Unit,
+    onNavigateToQuincena: () -> Unit,
 ) {
     val dashboard = data.dashboard
+    val quincenaTotal = remember(dashboard.upcomingPayments) {
+        dashboard.upcomingPayments.inQuincena(currentQuincena(LocalDate.now())).sumOf { it.expectedPayment }
+    }
 
     Column(
         modifier = Modifier
@@ -125,6 +140,7 @@ private fun DashboardContent(
         NetWorthHeroCard(
             label = stringResource(R.string.dashboard_net_worth),
             value = formatCurrency(dashboard.netWorth),
+            modifier = Modifier.clickable(onClick = { onNavigateToAccounts(null) }),
         )
 
         Spacer(Modifier.height(12.dp))
@@ -134,13 +150,13 @@ private fun DashboardContent(
                 label = stringResource(R.string.dashboard_available),
                 value = formatCurrency(dashboard.availableBalance),
                 accent = true,
-                modifier = Modifier.weight(1f).clickable(onClick = onNavigateToAccounts),
+                modifier = Modifier.weight(1f).clickable(onClick = { onNavigateToAccounts(AccountType.DEBIT) }),
             )
             StatCard(
                 label = stringResource(R.string.dashboard_debt),
                 value = formatCurrency(dashboard.creditCardDebt),
                 accent = false,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable(onClick = onNavigateToCards),
             )
         }
         Spacer(Modifier.height(12.dp))
@@ -151,14 +167,24 @@ private fun DashboardContent(
                 value = nextPayment?.let { formatCurrency(it.expectedPayment) } ?: "—",
                 caption = nextPayment?.creditCardName,
                 accent = false,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable(onClick = onNavigateToUpcomingPayments),
             )
             StatCard(
                 label = stringResource(R.string.dashboard_expenses_this_month),
                 value = formatCurrency(dashboard.expenseThisMonth),
                 accent = false,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable(onClick = onNavigateToMonthExpenses),
             )
+        }
+        Spacer(Modifier.height(12.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatCard(
+                label = stringResource(R.string.dashboard_quincena),
+                value = formatCurrency(quincenaTotal),
+                accent = false,
+                modifier = Modifier.weight(1f).clickable(onClick = onNavigateToQuincena),
+            )
+            Spacer(Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(24.dp))
@@ -211,9 +237,9 @@ private fun DashboardContent(
 }
 
 @Composable
-private fun NetWorthHeroCard(label: String, value: String) {
+private fun NetWorthHeroCard(label: String, value: String, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(24.dp))
             .padding(20.dp),
