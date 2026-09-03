@@ -21,6 +21,9 @@ sealed class NexoraDestination(val route: String) {
     data object Cards : NexoraDestination("cards")
     data object Notifications : NexoraDestination("notifications")
 
+    /** Ajustes (A10): por ahora solo el toggle de bloqueo con huella digital. */
+    data object Settings : NexoraDestination("settings")
+
     /** Resumen de "próximo pago" del dashboard: todas las tarjetas con pago próximo, como en la web. */
     data object UpcomingPayments : NexoraDestination("upcoming-payments")
 

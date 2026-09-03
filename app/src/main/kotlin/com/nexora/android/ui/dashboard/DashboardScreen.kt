@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Button
@@ -64,6 +65,7 @@ fun DashboardScreen(
     onNavigateToUpcomingPayments: () -> Unit,
     onNavigateToMonthExpenses: () -> Unit,
     onNavigateToQuincena: () -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val viewModel: DashboardViewModel = viewModel(
         factory = viewModelFactory { initializer { DashboardViewModel(dashboardRepository, userRepository, authRepository) } },
@@ -95,6 +97,7 @@ fun DashboardScreen(
             onNavigateToUpcomingPayments = onNavigateToUpcomingPayments,
             onNavigateToMonthExpenses = onNavigateToMonthExpenses,
             onNavigateToQuincena = onNavigateToQuincena,
+            onNavigateToSettings = onNavigateToSettings,
         )
     }
 }
@@ -109,6 +112,7 @@ private fun DashboardContent(
     onNavigateToUpcomingPayments: () -> Unit,
     onNavigateToMonthExpenses: () -> Unit,
     onNavigateToQuincena: () -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val dashboard = data.dashboard
     val quincenaTotal = remember(dashboard.upcomingPayments) {
@@ -130,8 +134,13 @@ private fun DashboardContent(
                 Text(stringResource(R.string.dashboard_greeting), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(data.displayName, style = MaterialTheme.typography.headlineSmall)
             }
-            IconButton(onClick = onLogout) {
-                Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = stringResource(R.string.logout))
+            Row {
+                IconButton(onClick = onNavigateToSettings) {
+                    Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings_title))
+                }
+                IconButton(onClick = onLogout) {
+                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = stringResource(R.string.logout))
+                }
             }
         }
 

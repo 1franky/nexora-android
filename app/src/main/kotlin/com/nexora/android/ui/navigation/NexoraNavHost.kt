@@ -9,6 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,11 +32,14 @@ import com.nexora.android.ui.dashboard.DashboardScreen
 import com.nexora.android.ui.dashboard.MonthExpensesScreen
 import com.nexora.android.ui.dashboard.QuincenaScreen
 import com.nexora.android.ui.dashboard.UpcomingPaymentsScreen
+import com.nexora.android.ui.lock.LockScreen
 import com.nexora.android.ui.login.LoginScreen
 import com.nexora.android.ui.notifications.NotificationsScreen
 import com.nexora.android.ui.register.RegisterScreen
+import com.nexora.android.ui.settings.SettingsScreen
 import com.nexora.android.ui.transactions.MovementKind
 import com.nexora.android.ui.transactions.TransactionsScreen
+import kotlinx.coroutines.launch
 
 /**
  * Navega a uno de los destinos "de nivel superior" (los del bottom nav, y
@@ -82,9 +86,50 @@ private fun NavHostController.navigateToTopLevel(route: String) {
 fun NexoraNavHost(container: AppContainer) {
     val isAuthenticated by container.authRepository.isAuthenticated.collectAsStateWithLifecycle(initialValue = null)
 
+    // A10: cerrar sesión también resetea isUnlocked — evita que, si el proceso sigue
+    // vivo, un login posterior arranque ya "desbloqueado" en memoria por una sesión
+    // anterior. Cubre cualquier camino de logout (Dashboard, LockScreen) desde un
+    // único lugar, igual que la navegación a Login/Dashboard de más abajo.
+    LaunchedEffect(isAuthenticated) {
+        if (isAuthenticated == false) container.appLockManager.lock()
+    }
+
     when (isAuthenticated) {
         null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        else -> AuthenticatedAwareNavHost(container = container, startAuthenticated = isAuthenticated == true, isAuthenticated = isAuthenticated)
+        true -> LockGate(container = container)
+        false -> AuthenticatedAwareNavHost(container = container, startAuthenticated = false, isAuthenticated = false)
+    }
+}
+
+/**
+ * Gate de bloqueo (A10, plan.md sección 13): `lockEnabled && !isUnlocked` se
+ * decide al mismo nivel que `isAuthenticated`, no como una ruta más del
+ * NavHost — así no queda en el back stack ni un `popBackStack` lo esquiva.
+ */
+@Composable
+private fun LockGate(container: AppContainer) {
+    val lockEnabled by container.appLockManager.lockEnabled.collectAsStateWithLifecycle(initialValue = null)
+    val isUnlocked by container.appLockManager.isUnlocked.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+
+    if (lockEnabled == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        return
+    }
+
+    // AuthenticatedAwareNavHost queda SIEMPRE montado (mismo NavHostController, mismo
+    // back stack) — LockScreen se superpone encima en vez de reemplazarlo, para no
+    // perder en qué pantalla estaba el usuario cada vez que la app se bloquea/
+    // desbloquea (si reemplazara al NavHost, rememberNavController() crearía uno
+    // nuevo en cada desbloqueo y siempre volvería a Dashboard).
+    Box(Modifier.fillMaxSize()) {
+        AuthenticatedAwareNavHost(container = container, startAuthenticated = true, isAuthenticated = true)
+        if (lockEnabled == true && !isUnlocked) {
+            LockScreen(
+                appLockManager = container.appLockManager,
+                onLogout = { scope.launch { container.authRepository.logout() } },
+            )
+        }
     }
 }
 
@@ -154,6 +199,13 @@ private fun AuthenticatedAwareNavHost(
                         onNavigateToUpcomingPayments = { navController.navigate(NexoraDestination.UpcomingPayments.route) },
                         onNavigateToMonthExpenses = { navController.navigate(NexoraDestination.MonthExpenses.route) },
                         onNavigateToQuincena = { navController.navigate(NexoraDestination.Quincena.route) },
+                        onNavigateToSettings = { navController.navigate(NexoraDestination.Settings.route) },
+                    )
+                }
+                composable(NexoraDestination.Settings.route) {
+                    SettingsScreen(
+                        appLockManager = container.appLockManager,
+                        onNavigateBack = { navController.popBackStack() },
                     )
                 }
                 composable(

@@ -84,6 +84,7 @@ android {
 
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
     sourceSets["test"].kotlin.srcDirs("src/test/kotlin")
+    sourceSets["androidTest"].kotlin.srcDirs("src/androidTest/kotlin")
 }
 
 dependencies {
@@ -91,9 +92,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.biometric)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)

@@ -17,6 +17,7 @@ import com.nexora.android.data.dashboard.DashboardApi
 import com.nexora.android.data.dashboard.DashboardRepository
 import com.nexora.android.data.installment.InstallmentApi
 import com.nexora.android.data.installment.InstallmentRepository
+import com.nexora.android.data.lock.AppLockManager
 import com.nexora.android.data.notification.NotificationApi
 import com.nexora.android.data.notification.NotificationRepository
 import com.nexora.android.data.offline.ConnectivityObserver
@@ -55,6 +56,7 @@ class AppContainer(context: Context) {
 
     val tokenStore = TokenStore(context.applicationContext)
     val themePreference = ThemePreference(context.applicationContext)
+    val appLockManager = AppLockManager(context.applicationContext)
 
     val json = Json { ignoreUnknownKeys = true }
     private val jsonConverterFactory = json.asConverterFactory("application/json".toMediaType())
