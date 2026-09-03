@@ -39,8 +39,11 @@ android {
         // rápidos funcionales) y conversión de moneda multi-currency (backlog notas.txt).
         // 1.2.0: editar/borrar movimientos, excluir AFORE/PPR al pagar tarjeta, fix de
         // navegación del bottom nav (volver al Dashboard desde el detalle de una tarjeta).
-        versionCode = 4
-        versionName = "1.2.0"
+        // 1.3.0: navegación real de los tiles del dashboard (patrimonio neto, disponible
+        // -solo débito-, deuda, próximo pago y gastos del mes ya llevan a algún lado) y
+        // nuevo tile "Quincena" (suma de pagos próximos de la quincena en curso).
+        versionCode = 5
+        versionName = "1.3.0"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
