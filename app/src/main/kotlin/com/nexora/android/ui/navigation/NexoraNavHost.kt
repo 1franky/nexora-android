@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.nexora.android.data.account.AccountType
 import com.nexora.android.di.AppContainer
 import com.nexora.android.ui.accounts.AccountsScreen
 import com.nexora.android.ui.cards.CardDetailScreen
@@ -27,6 +28,9 @@ import com.nexora.android.ui.cards.CardsScreen
 import com.nexora.android.ui.components.NexoraBottomBar
 import com.nexora.android.ui.components.OfflineBanner
 import com.nexora.android.ui.dashboard.DashboardScreen
+import com.nexora.android.ui.dashboard.MonthExpensesScreen
+import com.nexora.android.ui.dashboard.QuincenaScreen
+import com.nexora.android.ui.dashboard.UpcomingPaymentsScreen
 import com.nexora.android.ui.login.LoginScreen
 import com.nexora.android.ui.notifications.NotificationsScreen
 import com.nexora.android.ui.register.RegisterScreen
@@ -144,15 +148,46 @@ private fun AuthenticatedAwareNavHost(
                         dashboardRepository = container.dashboardRepository,
                         userRepository = container.userRepository,
                         authRepository = container.authRepository,
-                        onNavigateToAccounts = { navController.navigate(NexoraDestination.Accounts.route) },
+                        onNavigateToAccounts = { type -> navController.navigate(NexoraDestination.Accounts.routeFor(type)) },
                         onNavigateToNewTransaction = { kind -> navController.navigate(NexoraDestination.NewTransaction.routeFor(kind)) },
                         onNavigateToCards = { navController.navigateToTopLevel(NexoraDestination.Cards.route) },
+                        onNavigateToUpcomingPayments = { navController.navigate(NexoraDestination.UpcomingPayments.route) },
+                        onNavigateToMonthExpenses = { navController.navigate(NexoraDestination.MonthExpenses.route) },
+                        onNavigateToQuincena = { navController.navigate(NexoraDestination.Quincena.route) },
                     )
                 }
-                composable(NexoraDestination.Accounts.route) {
+                composable(
+                    route = NexoraDestination.Accounts.route,
+                    arguments = listOf(navArgument("type") { type = NavType.StringType; defaultValue = "all" }),
+                ) { backStackEntry ->
+                    val typeArg = backStackEntry.arguments?.getString("type")
+                    val filterType = typeArg?.let { runCatching { AccountType.valueOf(it) }.getOrNull() }
                     AccountsScreen(
                         accountRepository = container.accountRepository,
                         onNavigateBack = { navController.popBackStack() },
+                        filterType = filterType,
+                    )
+                }
+                composable(NexoraDestination.UpcomingPayments.route) {
+                    UpcomingPaymentsScreen(
+                        dashboardRepository = container.dashboardRepository,
+                        onNavigateBack = { navController.popBackStack() },
+                        onCardClick = { cardId -> navController.navigate(NexoraDestination.CardDetail.routeFor(cardId)) },
+                    )
+                }
+                composable(NexoraDestination.MonthExpenses.route) {
+                    MonthExpensesScreen(
+                        transactionRepository = container.transactionRepository,
+                        accountRepository = container.accountRepository,
+                        categoryRepository = container.categoryRepository,
+                        onNavigateBack = { navController.popBackStack() },
+                    )
+                }
+                composable(NexoraDestination.Quincena.route) {
+                    QuincenaScreen(
+                        dashboardRepository = container.dashboardRepository,
+                        onNavigateBack = { navController.popBackStack() },
+                        onCardClick = { cardId -> navController.navigate(NexoraDestination.CardDetail.routeFor(cardId)) },
                     )
                 }
                 composable(NexoraDestination.Transactions.route) {

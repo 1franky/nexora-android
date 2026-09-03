@@ -239,7 +239,7 @@ private fun TransactionsContent(
     }
 }
 
-private fun resolveRelatedLabel(
+internal fun resolveRelatedLabel(
     transaction: Transaction,
     accountNameById: Map<String, String>,
     categoryNameById: Map<String, String>,
@@ -248,7 +248,7 @@ private fun resolveRelatedLabel(
     ?: transaction.merchant
 
 @Composable
-private fun TransactionRow(
+internal fun TransactionRow(
     transaction: Transaction,
     accountName: String?,
     relatedLabel: String?,

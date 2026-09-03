@@ -1,5 +1,6 @@
 package com.nexora.android.ui.navigation
 
+import com.nexora.android.data.account.AccountType
 import com.nexora.android.ui.transactions.MovementKind
 
 /** Rutas de navegación (plan.md, sección 9: A1 "Navegación"). */
@@ -7,10 +8,27 @@ sealed class NexoraDestination(val route: String) {
     data object Login : NexoraDestination("login")
     data object Register : NexoraDestination("register")
     data object Dashboard : NexoraDestination("dashboard")
-    data object Accounts : NexoraDestination("accounts")
+
+    /**
+     * Lista de cuentas, opcionalmente filtrada por tipo — usada por los accesos
+     * "Patrimonio neto" (sin filtro, todas) y "Disponible" (solo débito) del
+     * dashboard. `type` es el nombre de un [AccountType] o "all".
+     */
+    data object Accounts : NexoraDestination("accounts?type={type}") {
+        fun routeFor(type: AccountType? = null) = "accounts?type=${type?.name ?: "all"}"
+    }
     data object Transactions : NexoraDestination("transactions")
     data object Cards : NexoraDestination("cards")
     data object Notifications : NexoraDestination("notifications")
+
+    /** Resumen de "próximo pago" del dashboard: todas las tarjetas con pago próximo, como en la web. */
+    data object UpcomingPayments : NexoraDestination("upcoming-payments")
+
+    /** Resumen de "gastos del mes" del dashboard: las compras/gastos del mes en curso. */
+    data object MonthExpenses : NexoraDestination("month-expenses")
+
+    /** Resumen de "quincena" del dashboard: pagos próximos que caen en la quincena actual. */
+    data object Quincena : NexoraDestination("quincena")
 
     /** Detalle de una tarjeta — no es un destino fijo, se arma con el id. */
     data object CardDetail : NexoraDestination("cards/{cardId}") {
