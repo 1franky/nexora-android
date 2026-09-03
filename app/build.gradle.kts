@@ -42,8 +42,11 @@ android {
         // 1.3.0: navegación real de los tiles del dashboard (patrimonio neto, disponible
         // -solo débito-, deuda, próximo pago y gastos del mes ya llevan a algún lado) y
         // nuevo tile "Quincena" (suma de pagos próximos de la quincena en curso).
-        versionCode = 5
-        versionName = "1.3.0"
+        // 1.4.0: bloqueo de la app con huella digital (A10) con margen de gracia de 30s y
+        // FLAG_SECURE, TokenStore cifrado en reposo (AES-256-GCM vía Android Keystore), y
+        // recuperación de contraseña por OTP vía email (A11, backend B10 + web W9).
+        versionCode = 6
+        versionName = "1.4.0"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
