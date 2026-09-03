@@ -219,4 +219,14 @@
 
     <!-- Logout -->
     <string name="logout">Cerrar sesión</string>
+
+    <!-- Bloqueo con huella digital y Ajustes (A10) -->
+    <string name="lock_prompt_title">Desbloquea Nexora</string>
+    <string name="lock_subtitle">Usa tu huella digital para continuar</string>
+    <string name="lock_unlock_button">Desbloquear</string>
+    <string name="lock_error_generic">No se pudo verificar tu identidad. Intenta de nuevo.</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_lock_toggle">Bloquear con huella digital</string>
+    <string name="settings_lock_toggle_hint">Pide huella (o el PIN/patrón del dispositivo) al abrir la app o volver de segundo plano.</string>
+    <string name="settings_lock_unavailable">Tu dispositivo no tiene huella digital ni bloqueo de pantalla configurados.</string>
 </resources>
