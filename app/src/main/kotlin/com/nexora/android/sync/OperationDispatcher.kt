@@ -10,6 +10,8 @@ import com.nexora.android.data.installment.CreateInstallmentPlanRequest
 import com.nexora.android.data.installment.InstallmentApi
 import com.nexora.android.data.offline.OperationType
 import com.nexora.android.data.offline.PendingOperationEntity
+import com.nexora.android.data.sat.SatApi
+import com.nexora.android.data.sat.SyncRequest
 import com.nexora.android.data.transaction.CreateTransactionRequest
 import com.nexora.android.data.transaction.CreateTransferRequest
 import com.nexora.android.data.transaction.TransactionApi
@@ -27,6 +29,7 @@ class OperationDispatcher(
     private val creditCardApi: CreditCardApi,
     private val transactionApi: TransactionApi,
     private val installmentApi: InstallmentApi,
+    private val satApi: SatApi,
 ) {
     suspend fun apply(operation: PendingOperationEntity) {
         val key = operation.idempotencyKey
@@ -62,6 +65,9 @@ class OperationDispatcher(
                 val (planId, installmentId) = requireNotNull(operation.pathParams).split("|")
                 installmentApi.payInstallment(planId, installmentId, key)
             }
+
+            OperationType.SAT_SYNC ->
+                satApi.sync(json.decodeFromString<SyncRequest>(operation.payloadJson))
         }
     }
 }

@@ -19,6 +19,11 @@ import com.nexora.android.data.installment.InstallmentPlan
 import com.nexora.android.data.installment.InstallmentPlanStatus
 import com.nexora.android.data.installment.InstallmentPlanType
 import com.nexora.android.data.installment.UpdateInstallmentPlanRequest
+import com.nexora.android.data.sat.CfdiInvoiceResponse
+import com.nexora.android.data.sat.PageCfdiInvoiceResponse
+import com.nexora.android.data.sat.SatApi
+import com.nexora.android.data.sat.SatCertificateResponse
+import com.nexora.android.data.sat.SyncRequest
 import com.nexora.android.data.transaction.CreateTransactionRequest
 import com.nexora.android.data.transaction.CreateTransferRequest
 import com.nexora.android.data.transaction.Transaction
@@ -150,4 +155,33 @@ class FakeInstallmentApi : InstallmentApi {
     }
 
     override suspend fun updatePlan(id: String, request: UpdateInstallmentPlanRequest): InstallmentPlan = error("no usado en estos tests")
+}
+
+class FakeSatApi : SatApi {
+    var lastSyncRequest: SyncRequest? = null
+
+    override suspend fun connectCertificate(
+        cer: okhttp3.MultipartBody.Part,
+        key: okhttp3.MultipartBody.Part,
+        password: String,
+    ): SatCertificateResponse = error("no usado en estos tests")
+
+    override suspend fun getCertificateStatus(): SatCertificateResponse = error("no usado en estos tests")
+
+    override suspend fun deleteCertificate() = error("no usado en estos tests")
+
+    override suspend fun sync(request: SyncRequest) {
+        lastSyncRequest = request
+    }
+
+    override suspend fun listInvoices(
+        tipo: String?,
+        desde: String?,
+        hasta: String?,
+        texto: String?,
+        page: Int,
+        size: Int,
+    ): PageCfdiInvoiceResponse = PageCfdiInvoiceResponse(content = emptyList<CfdiInvoiceResponse>())
+
+    override suspend fun downloadXml(id: String): okhttp3.ResponseBody = error("no usado en estos tests")
 }

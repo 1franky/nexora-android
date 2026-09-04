@@ -9,6 +9,7 @@ import com.nexora.android.data.installment.CreateInstallmentPlanRequest
 import com.nexora.android.data.offline.OperationType
 import com.nexora.android.data.offline.PendingOperationEntity
 import com.nexora.android.data.offline.PendingOperationStatus
+import com.nexora.android.data.sat.SyncRequest
 import com.nexora.android.data.transaction.CreateTransactionRequest
 import com.nexora.android.data.transaction.CreateTransferRequest
 import com.nexora.android.data.transaction.TransactionType
@@ -31,7 +32,8 @@ class OperationDispatcherTest {
     private val creditCardApi = FakeCreditCardApi()
     private val transactionApi = FakeTransactionApi()
     private val installmentApi = FakeInstallmentApi()
-    private val dispatcher = OperationDispatcher(json, accountApi, creditCardApi, transactionApi, installmentApi)
+    private val satApi = FakeSatApi()
+    private val dispatcher = OperationDispatcher(json, accountApi, creditCardApi, transactionApi, installmentApi, satApi)
 
     private fun operation(type: OperationType, payload: String, pathParams: String? = null, key: String = "key-1") =
         PendingOperationEntity(
@@ -120,5 +122,13 @@ class OperationDispatcherTest {
         assertEquals("plan-1", installmentApi.lastPlanId)
         assertEquals("inst-3", installmentApi.lastInstallmentId)
         assertEquals("key-pay-installment", installmentApi.lastKey)
+    }
+
+    @Test
+    fun `SAT_SYNC llama a satApi con el payload deserializado`() = runTest {
+        val request = SyncRequest(desde = "2026-01-01T00:00:00Z", hasta = "2026-01-15T00:00:00Z")
+        dispatcher.apply(operation(OperationType.SAT_SYNC, json.encodeToString(request), key = "key-sat-sync"))
+
+        assertEquals(request, satApi.lastSyncRequest)
     }
 }

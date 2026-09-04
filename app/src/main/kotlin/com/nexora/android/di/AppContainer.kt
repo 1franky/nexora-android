@@ -23,6 +23,8 @@ import com.nexora.android.data.notification.NotificationRepository
 import com.nexora.android.data.offline.ConnectivityObserver
 import com.nexora.android.data.offline.OfflineCache
 import com.nexora.android.data.offline.OfflineDatabase
+import com.nexora.android.data.sat.SatApi
+import com.nexora.android.data.sat.SatRepository
 import com.nexora.android.data.transaction.TransactionApi
 import com.nexora.android.data.transaction.TransactionRepository
 import com.nexora.android.data.user.UserRepository
@@ -103,6 +105,7 @@ class AppContainer(context: Context) {
     val transactionApi: TransactionApi = retrofit.create()
     val creditCardApi: CreditCardApi = retrofit.create()
     val installmentApi: InstallmentApi = retrofit.create()
+    val satApi: SatApi = retrofit.create()
 
     // --- Offline (A8): caché de lecturas + cola de escrituras pendientes ---
 
@@ -139,4 +142,5 @@ class AppContainer(context: Context) {
     val creditCardRepository = CreditCardRepository(creditCardApi, offlineCache, pendingOperationDao, syncScheduler, json)
     val installmentRepository = InstallmentRepository(installmentApi, offlineCache, pendingOperationDao, syncScheduler, json)
     val notificationRepository = NotificationRepository(notificationApi)
+    val satRepository = SatRepository(satApi, offlineCache, pendingOperationDao, syncScheduler, json)
 }

@@ -36,6 +36,17 @@ sealed class NexoraDestination(val route: String) {
     /** Ajustes (A10): por ahora solo el toggle de bloqueo con huella digital. */
     data object Settings : NexoraDestination("settings")
 
+    /**
+     * Conexión SAT (A12): alta de la e.firma o panel de estado. La entrada
+     * (desde Ajustes) exige un `BiometricPrompt` fresco antes de navegar
+     * aquí — ver SettingsScreen — por lo sensible de la información fiscal,
+     * más allá de si el bloqueo general de la app (A10) está activado.
+     */
+    data object SatConnection : NexoraDestination("sat")
+
+    /** Listado de facturas SAT — dentro de la misma sección protegida que [SatConnection]. */
+    data object SatInvoices : NexoraDestination("sat/invoices")
+
     /** Resumen de "próximo pago" del dashboard: todas las tarjetas con pago próximo, como en la web. */
     data object UpcomingPayments : NexoraDestination("upcoming-payments")
 
