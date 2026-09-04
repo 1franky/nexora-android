@@ -103,6 +103,18 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.biometric)
+    // Fija fragment-ktx a una versión moderna: androidx.biometric:1.1.0 (2021)
+    // arrastra transitivamente androidx.fragment:1.2.5, cuya
+    // FragmentActivity.checkForValidRequestCode() exige requestCode < 0x10000.
+    // El registro moderno de ActivityResultContracts (activity-compose 1.10.1)
+    // genera requestCodes deliberadamente >= 0x10000 (rango reservado para no
+    // chocar con los códigos "clásicos" de fragments/activities), así que con
+    // la 1.2.5 vieja CUALQUIER launcher.launch() en una FragmentActivity revienta
+    // con "Can only use lower 16 bits for requestCode" — es lo que pasaba al
+    // seleccionar el .cer/.key en la pantalla de Conexión SAT. Gradle resuelve
+    // por versión más alta entre todas las declaradas, así que esta dependencia
+    // directa sustituye a la 1.2.5 transitiva sin tocar biometric.
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
