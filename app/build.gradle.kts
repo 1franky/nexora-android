@@ -48,8 +48,12 @@ android {
         // 1.5.0: integración con el SAT (A12, backend B11 + web W10) — conectar la e.firma
         // (protegido detrás del bloqueo con huella) y consultar/filtrar/descargar las
         // facturas (CFDI) que el backend sincroniza automáticamente del SAT.
-        versionCode = 7
-        versionName = "1.5.0"
+        // 1.5.1: fix de un crash 100% reproducible al seleccionar el .cer/.key en Conexión
+        // SAT (androidx.fragment desactualizado, arrastrado transitivamente por biometric,
+        // incompatible con el rango de requestCode del selector de archivos moderno) y fix
+        // de la sync SAT por rango de fechas (mandaba la fecha sin zona horaria).
+        versionCode = 8
+        versionName = "1.5.1"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
