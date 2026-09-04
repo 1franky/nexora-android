@@ -45,8 +45,11 @@ android {
         // 1.4.0: bloqueo de la app con huella digital (A10) con margen de gracia de 30s y
         // FLAG_SECURE, TokenStore cifrado en reposo (AES-256-GCM vía Android Keystore), y
         // recuperación de contraseña por OTP vía email (A11, backend B10 + web W9).
-        versionCode = 6
-        versionName = "1.4.0"
+        // 1.5.0: integración con el SAT (A12, backend B11 + web W10) — conectar la e.firma
+        // (protegido detrás del bloqueo con huella) y consultar/filtrar/descargar las
+        // facturas (CFDI) que el backend sincroniza automáticamente del SAT.
+        versionCode = 7
+        versionName = "1.5.0"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
