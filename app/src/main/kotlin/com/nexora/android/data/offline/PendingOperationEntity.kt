@@ -17,6 +17,9 @@ enum class OperationType {
     CREDIT_CARD_PAYMENT,
     CREATE_INSTALLMENT_PLAN,
     PAY_INSTALLMENT,
+
+    /** Forzar sincronización SAT (A12) — ver SatRepository.requestSync. */
+    SAT_SYNC,
 }
 
 enum class PendingOperationStatus { PENDING, FAILED }

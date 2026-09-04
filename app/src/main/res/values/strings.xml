@@ -245,4 +245,63 @@
     <string name="reset_password_confirm_password_label">Confirmar contraseña</string>
     <string name="reset_password_submit">Restablecer contraseña</string>
     <string name="reset_password_mismatch">Las contraseñas no coinciden.</string>
+
+    <!-- Conexión SAT / CFDI (A12) -->
+    <string name="sat_menu_title">Conexión SAT</string>
+    <string name="sat_menu_subtitle">Descarga automática de tus facturas (CFDI)</string>
+    <string name="sat_gate_prompt_title">Verifica tu identidad para entrar a Conexión SAT</string>
+    <string name="sat_gate_unavailable_title">No disponible</string>
+    <string name="sat_gate_unavailable_message">Tu dispositivo no tiene huella digital ni bloqueo de pantalla configurados. Actívalo para poder entrar a esta sección — la información fiscal es demasiado sensible como para dejarla sin ese candado extra.</string>
+    <string name="sat_gate_unavailable_confirm">Entendido</string>
+
+    <string name="sat_connection_title">Conexión SAT</string>
+    <string name="sat_connection_intro">Conecta tu e.firma (FIEL) para que Nexora descargue automáticamente tus facturas (CFDI) emitidas y recibidas directamente del SAT.</string>
+    <string name="sat_connection_consent">Al conectar tu e.firma autorizas a Nexora a usarla únicamente para consultar y descargar tus CFDI ante el SAT. Tu contraseña y tu llave privada se cifran en el servidor y nunca se comparten con terceros.</string>
+    <string name="sat_connection_cer_label">Certificado (.cer)</string>
+    <string name="sat_connection_key_label">Llave privada (.key)</string>
+    <string name="sat_connection_select_file">Seleccionar archivo</string>
+    <string name="sat_connection_file_selected">Archivo seleccionado: %1$s</string>
+    <string name="sat_connection_password_label">Contraseña de la e.firma</string>
+    <string name="sat_connection_submit">Conectar e.firma</string>
+    <string name="sat_connection_missing_files">Selecciona el certificado y la llave antes de continuar.</string>
+    <string name="sat_connection_load_error">No se pudo consultar el estado de tu conexión con el SAT.</string>
+    <string name="sat_connection_connect_error">No se pudo conectar tu e.firma. Verifica los archivos y la contraseña.</string>
+
+    <string name="sat_status_rfc">RFC</string>
+    <string name="sat_status_valid_until">Vigente hasta</string>
+    <string name="sat_status_last_sync">Última sincronización</string>
+    <string name="sat_status_last_sync_never">Todavía no se ha sincronizado</string>
+    <string name="sat_status_active">Activa</string>
+    <string name="sat_status_auth_error">Tu e.firma dejó de funcionar. Necesitas eliminar la conexión y volver a conectarla para seguir sincronizando.</string>
+    <string name="sat_status_error_short">Error de autenticación</string>
+    <string name="sat_status_revoked">Conexión revocada</string>
+    <string name="sat_status_sync_now">Sincronizar ahora</string>
+    <string name="sat_status_sync_range_title">Sincronizar historial anterior</string>
+    <string name="sat_status_sync_range_from">Desde</string>
+    <string name="sat_status_sync_range_to">Hasta</string>
+    <string name="sat_status_sync_range_submit">Sincronizar rango</string>
+    <string name="sat_status_sync_queued">Sin conexión: se sincronizará en cuanto vuelva la señal.</string>
+    <string name="sat_status_sync_started">Sincronización iniciada. Te avisaremos cuando termine.</string>
+    <string name="sat_status_sync_error">No se pudo iniciar la sincronización.</string>
+    <string name="sat_status_delete_connection">Eliminar conexión</string>
+    <string name="sat_status_delete_confirm_title">Eliminar conexión SAT</string>
+    <string name="sat_status_delete_confirm_message">Se borrará tu e.firma de Nexora (certificado, llave y contraseña). Tus facturas ya descargadas se conservan. Esta acción no se puede deshacer.</string>
+    <string name="sat_status_view_invoices">Ver facturas</string>
+    <string name="sat_status_delete_error">No se pudo eliminar la conexión.</string>
+
+    <string name="sat_invoices_title">Facturas SAT</string>
+    <string name="sat_invoices_search_label">Buscar por RFC, nombre o folio</string>
+    <string name="sat_invoices_filter_type_all">Todas</string>
+    <string name="sat_invoices_filter_type_emitidas">Emitidas</string>
+    <string name="sat_invoices_filter_type_recibidas">Recibidas</string>
+    <string name="sat_invoices_filter_from">Desde</string>
+    <string name="sat_invoices_filter_to">Hasta</string>
+    <string name="sat_invoices_empty">No se encontraron facturas con estos filtros.</string>
+    <string name="sat_invoices_load_error">No se pudieron cargar las facturas.</string>
+    <string name="sat_invoices_load_more">Cargar más</string>
+    <string name="sat_invoices_download">Descargar XML</string>
+    <string name="sat_invoices_share">Compartir XML</string>
+    <string name="sat_invoices_download_error">No se pudo descargar el XML.</string>
+    <string name="sat_invoices_download_success">XML guardado.</string>
+    <string name="sat_invoices_cancelled">Cancelado</string>
 </resources>

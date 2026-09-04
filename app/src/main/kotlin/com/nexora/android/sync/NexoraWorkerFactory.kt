@@ -27,6 +27,7 @@ class NexoraWorkerFactory(private val container: AppContainer) : WorkerFactory()
                     container.creditCardApi,
                     container.transactionApi,
                     container.installmentApi,
+                    container.satApi,
                 ),
             )
             else -> null

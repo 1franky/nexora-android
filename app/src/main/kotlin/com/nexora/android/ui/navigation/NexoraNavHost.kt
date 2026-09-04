@@ -38,6 +38,8 @@ import com.nexora.android.ui.login.LoginScreen
 import com.nexora.android.ui.notifications.NotificationsScreen
 import com.nexora.android.ui.register.RegisterScreen
 import com.nexora.android.ui.resetpassword.ResetPasswordScreen
+import com.nexora.android.ui.sat.SatConnectionScreen
+import com.nexora.android.ui.sat.SatInvoicesScreen
 import com.nexora.android.ui.settings.SettingsScreen
 import com.nexora.android.ui.transactions.MovementKind
 import com.nexora.android.ui.transactions.TransactionsScreen
@@ -237,6 +239,20 @@ private fun AuthenticatedAwareNavHost(
                 composable(NexoraDestination.Settings.route) {
                     SettingsScreen(
                         appLockManager = container.appLockManager,
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToSat = { navController.navigate(NexoraDestination.SatConnection.route) },
+                    )
+                }
+                composable(NexoraDestination.SatConnection.route) {
+                    SatConnectionScreen(
+                        satRepository = container.satRepository,
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToInvoices = { navController.navigate(NexoraDestination.SatInvoices.route) },
+                    )
+                }
+                composable(NexoraDestination.SatInvoices.route) {
+                    SatInvoicesScreen(
+                        satRepository = container.satRepository,
                         onNavigateBack = { navController.popBackStack() },
                     )
                 }
