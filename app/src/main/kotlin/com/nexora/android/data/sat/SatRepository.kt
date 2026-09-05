@@ -87,6 +87,10 @@ class SatRepository(
     suspend fun downloadXml(invoiceId: String, fallbackError: String): ByteArray =
         apiCall(fallbackError) { satApi.downloadXml(invoiceId).bytes() }
 
+    /** Representación impresa (PDF); el documento fiscal original sigue siendo el XML (B13/A14). */
+    suspend fun downloadPdf(invoiceId: String, fallbackError: String): ByteArray =
+        apiCall(fallbackError) { satApi.downloadPdf(invoiceId).bytes() }
+
     /**
      * Encola vía WorkManager si no hay conexión (mismo patrón writeCall/SyncWorker
      * de A8) — el propio POST /sat/sync responde 202 y corre en background del
