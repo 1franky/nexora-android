@@ -84,6 +84,8 @@
     <string name="transactions_kind_income">Ingreso</string>
     <string name="transactions_kind_transfer">Transferir</string>
     <string name="transactions_no_other_accounts">Necesitas otra cuenta activa para transferir.</string>
+    <string name="transactions_transfer_to">Transferencia a %1$s</string>
+    <string name="transactions_transfer_from">Transferencia de %1$s</string>
     <string name="transactions_filter_content_description">Filtrar por cuenta</string>
     <string name="transactions_edit_title">Editar movimiento</string>
     <string name="transactions_delete_title">Eliminar movimiento</string>

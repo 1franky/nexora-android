@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -131,6 +132,7 @@ private fun iconFor(type: NotificationType): ImageVector = when (type) {
     NotificationType.INSTALLMENT_DUE -> Icons.Outlined.CalendarMonth
     NotificationType.PAYMENT_DUE, NotificationType.PAYMENT_DUE_SOON, NotificationType.PAYMENT_OVERDUE -> Icons.Outlined.CreditCard
     NotificationType.BUDGET_EXCEEDED, NotificationType.UNUSUAL_EXPENSE -> Icons.Outlined.Notifications
+    NotificationType.SAT_SYNC_COMPLETED, NotificationType.SAT_SYNC_FAILED -> Icons.Outlined.Description
 }
 
 @Composable
