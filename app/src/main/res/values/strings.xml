@@ -291,6 +291,16 @@
     <string name="sat_status_view_invoices">Ver facturas</string>
     <string name="sat_status_delete_error">No se pudo eliminar la conexión.</string>
 
+    <string name="sat_contraparte_section_title">RFC de contraparte para facturas recibidas</string>
+    <string name="sat_contraparte_section_intro">El SAT exige el RFC específico de quien te factura para poder descargar tus facturas recibidas — no existe forma de pedir "todo lo que me han facturado" en una sola solicitud. Registra aquí a tu empleador, tus proveedores de servicios, etc.</string>
+    <string name="sat_contraparte_rfc_label">RFC</string>
+    <string name="sat_contraparte_alias_label">Alias (opcional)</string>
+    <string name="sat_contraparte_add">Agregar</string>
+    <string name="sat_contraparte_delete">Eliminar RFC</string>
+    <string name="sat_contraparte_load_error">No se pudieron cargar los RFC registrados.</string>
+    <string name="sat_contraparte_add_error">No se pudo agregar el RFC.</string>
+    <string name="sat_contraparte_delete_error">No se pudo eliminar el RFC.</string>
+
     <string name="sat_invoices_title">Facturas SAT</string>
     <string name="sat_invoices_search_label">Buscar por RFC, nombre o folio</string>
     <string name="sat_invoices_filter_type_all">Todas</string>

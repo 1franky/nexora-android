@@ -59,3 +59,22 @@ data class PageCfdiInvoiceResponse(
 /** Body opcional de POST /sat/sync — sin campos = incremental; con ambos = rango explícito (sección 6.1 del plan). */
 @Serializable
 data class SyncRequest(val desde: String? = null, val hasta: String? = null)
+
+/**
+ * RFC de un tercero que le factura al usuario (empleador, proveedor, etc.).
+ * El SAT exige el RFC específico del emisor para descargar CFDI RECIBIDAS —
+ * no hay forma de pedir "todo lo que me han facturado" en una sola solicitud
+ * (B12/A13, ver plan-integracion-sat.md).
+ */
+@Serializable
+data class SatContraparteResponse(
+    val id: String,
+    val rfc: String,
+    val alias: String? = null,
+)
+
+@Serializable
+data class CreateSatContraparteRequest(
+    val rfc: String,
+    val alias: String? = null,
+)

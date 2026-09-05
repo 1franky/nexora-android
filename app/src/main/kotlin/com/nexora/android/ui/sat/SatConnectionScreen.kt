@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
@@ -353,6 +354,10 @@ private fun SatStatusPanel(
 
         HorizontalDivider()
 
+        ContraparteSection(viewModel = viewModel)
+
+        HorizontalDivider()
+
         Button(onClick = onNavigateToInvoices, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.sat_status_view_invoices))
         }
@@ -397,6 +402,85 @@ private fun SatStatusPanel(
                 }
             },
         )
+    }
+}
+
+/**
+ * RFC de terceros que le facturan al usuario (A13): el SAT exige el RFC
+ * específico del emisor para descargar CFDI RECIBIDAS — no existe forma de
+ * pedir "todo lo que me han facturado" en una sola solicitud, así que el
+ * usuario tiene que registrar aquí a su empleador, sus proveedores, etc.
+ */
+@Composable
+private fun ContraparteSection(viewModel: SatConnectionViewModel) {
+    val loadError = stringResource(R.string.sat_contraparte_load_error)
+    val addError = stringResource(R.string.sat_contraparte_add_error)
+    val deleteError = stringResource(R.string.sat_contraparte_delete_error)
+
+    LaunchedEffect(Unit) { viewModel.loadContrapartes(loadError) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(stringResource(R.string.sat_contraparte_section_title), style = MaterialTheme.typography.titleSmall)
+        Text(
+            stringResource(R.string.sat_contraparte_section_intro),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        if (viewModel.contrapartesError != null) {
+            Text(viewModel.contrapartesError!!, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        }
+
+        viewModel.contrapartes.forEach { contraparte ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column {
+                    Text(contraparte.alias ?: contraparte.rfc, style = MaterialTheme.typography.bodyMedium)
+                    if (contraparte.alias != null) {
+                        Text(contraparte.rfc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                if (viewModel.deletingContraparteId == contraparte.id) {
+                    CircularProgressIndicator(modifier = Modifier.height(20.dp))
+                } else {
+                    IconButton(onClick = { viewModel.deleteContraparte(contraparte.id, deleteError) }) {
+                        Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.sat_contraparte_delete))
+                    }
+                }
+            }
+        }
+
+        OutlinedTextField(
+            value = viewModel.newContraparteRfc,
+            onValueChange = viewModel::onNewContraparteRfcChange,
+            label = { Text(stringResource(R.string.sat_contraparte_rfc_label)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = viewModel.newContraparteAlias,
+            onValueChange = viewModel::onNewContraparteAliasChange,
+            label = { Text(stringResource(R.string.sat_contraparte_alias_label)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (viewModel.addContraparteError != null) {
+            Text(viewModel.addContraparteError!!, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        }
+        OutlinedButton(
+            onClick = { viewModel.addContraparte(addError) },
+            enabled = !viewModel.isAddingContraparte && viewModel.newContraparteRfc.isNotBlank(),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            if (viewModel.isAddingContraparte) {
+                CircularProgressIndicator(modifier = Modifier.height(20.dp))
+            } else {
+                Text(stringResource(R.string.sat_contraparte_add))
+            }
+        }
     }
 }
 

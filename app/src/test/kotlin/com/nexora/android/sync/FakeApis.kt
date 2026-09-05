@@ -20,9 +20,11 @@ import com.nexora.android.data.installment.InstallmentPlanStatus
 import com.nexora.android.data.installment.InstallmentPlanType
 import com.nexora.android.data.installment.UpdateInstallmentPlanRequest
 import com.nexora.android.data.sat.CfdiInvoiceResponse
+import com.nexora.android.data.sat.CreateSatContraparteRequest
 import com.nexora.android.data.sat.PageCfdiInvoiceResponse
 import com.nexora.android.data.sat.SatApi
 import com.nexora.android.data.sat.SatCertificateResponse
+import com.nexora.android.data.sat.SatContraparteResponse
 import com.nexora.android.data.sat.SyncRequest
 import com.nexora.android.data.transaction.CreateTransactionRequest
 import com.nexora.android.data.transaction.CreateTransferRequest
@@ -184,4 +186,10 @@ class FakeSatApi : SatApi {
     ): PageCfdiInvoiceResponse = PageCfdiInvoiceResponse(content = emptyList<CfdiInvoiceResponse>())
 
     override suspend fun downloadXml(id: String): okhttp3.ResponseBody = error("no usado en estos tests")
+
+    override suspend fun listContrapartes(): List<SatContraparteResponse> = error("no usado en estos tests")
+
+    override suspend fun createContraparte(request: CreateSatContraparteRequest): SatContraparteResponse = error("no usado en estos tests")
+
+    override suspend fun deleteContraparte(id: String) = error("no usado en estos tests")
 }

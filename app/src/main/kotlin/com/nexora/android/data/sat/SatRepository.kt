@@ -106,4 +106,13 @@ class SatRepository(
         if (outcome is WriteOutcome.Queued) syncScheduler.requestSync()
         return outcome
     }
+
+    suspend fun listContrapartes(fallbackError: String): List<SatContraparteResponse> =
+        apiCall(fallbackError) { satApi.listContrapartes() }
+
+    /** Sin caché ni cola offline a propósito (mismo criterio que updateTransaction/deleteTransaction en A8): la lista es corta y el usuario espera ver de inmediato si el RFC es inválido o ya estaba registrado. */
+    suspend fun createContraparte(rfc: String, alias: String?, fallbackError: String): SatContraparteResponse =
+        apiCall(fallbackError) { satApi.createContraparte(CreateSatContraparteRequest(rfc, alias)) }
+
+    suspend fun deleteContraparte(id: String, fallbackError: String) = apiCall(fallbackError) { satApi.deleteContraparte(id) }
 }

@@ -53,4 +53,14 @@ interface SatApi {
     @Streaming
     @GET("sat/invoices/{id}/xml")
     suspend fun downloadXml(@Path("id") id: String): ResponseBody
+
+    @GET("sat/contrapartes")
+    suspend fun listContrapartes(): List<SatContraparteResponse>
+
+    /** 400 con `message` en español si el RFC tiene formato inválido o ya está registrado. */
+    @POST("sat/contrapartes")
+    suspend fun createContraparte(@Body request: CreateSatContraparteRequest): SatContraparteResponse
+
+    @DELETE("sat/contrapartes/{id}")
+    suspend fun deleteContraparte(@Path("id") id: String)
 }
