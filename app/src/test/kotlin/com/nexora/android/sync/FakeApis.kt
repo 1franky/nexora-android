@@ -184,4 +184,6 @@ class FakeSatApi : SatApi {
     ): PageCfdiInvoiceResponse = PageCfdiInvoiceResponse(content = emptyList<CfdiInvoiceResponse>())
 
     override suspend fun downloadXml(id: String): okhttp3.ResponseBody = error("no usado en estos tests")
+
+    override suspend fun downloadPdf(id: String): okhttp3.ResponseBody = error("no usado en estos tests")
 }

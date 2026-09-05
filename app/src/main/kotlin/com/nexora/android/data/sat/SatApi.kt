@@ -53,4 +53,9 @@ interface SatApi {
     @Streaming
     @GET("sat/invoices/{id}/xml")
     suspend fun downloadXml(@Path("id") id: String): ResponseBody
+
+    /** Representación impresa (PDF) generada al vuelo por el backend a partir del XML — mismo mecanismo de streaming que downloadXml (B13). */
+    @Streaming
+    @GET("sat/invoices/{id}/pdf")
+    suspend fun downloadPdf(@Path("id") id: String): ResponseBody
 }

@@ -103,4 +103,7 @@ class SatInvoicesViewModel(private val satRepository: SatRepository) : ViewModel
 
     suspend fun downloadXml(invoiceId: String, fallbackError: String): ByteArray =
         satRepository.downloadXml(invoiceId, fallbackError)
+
+    suspend fun downloadPdf(invoiceId: String, fallbackError: String): ByteArray =
+        satRepository.downloadPdf(invoiceId, fallbackError)
 }

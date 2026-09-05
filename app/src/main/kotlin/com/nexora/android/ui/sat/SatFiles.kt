@@ -32,13 +32,20 @@ fun readBytes(context: Context, uri: Uri): ByteArray? =
  * Intent.ACTION_SEND con un content:// de FileProvider — nunca un Uri
  * file:// directo, que revienta con FileUriExposedException desde Android 7.
  */
-fun shareXmlIntent(context: Context, fileName: String, bytes: ByteArray): Intent {
-    val dir = File(context.cacheDir, "sat-xml").apply { mkdirs() }
+fun shareXmlIntent(context: Context, fileName: String, bytes: ByteArray): Intent =
+    shareFileIntent(context, "sat-xml", fileName, bytes, "application/xml")
+
+/** Igual que shareXmlIntent pero para la representación impresa (PDF, B13/A14) — mismo mecanismo, solo cambia el subdirectorio de caché y el mime type. */
+fun sharePdfIntent(context: Context, fileName: String, bytes: ByteArray): Intent =
+    shareFileIntent(context, "sat-pdf", fileName, bytes, "application/pdf")
+
+private fun shareFileIntent(context: Context, cacheSubDir: String, fileName: String, bytes: ByteArray, mimeType: String): Intent {
+    val dir = File(context.cacheDir, cacheSubDir).apply { mkdirs() }
     val file = File(dir, fileName)
     file.writeBytes(bytes)
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     return Intent(Intent.ACTION_SEND).apply {
-        type = "application/xml"
+        type = mimeType
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }

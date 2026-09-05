@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A12: solo expone el subdirectorio donde SatInvoicesScreen escribe el XML antes de compartirlo. -->
+<!-- A12/A14: solo expone los subdirectorios donde SatInvoicesScreen escribe el XML/PDF antes de compartirlos. -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <cache-path name="sat-xml" path="sat-xml/" />
+    <cache-path name="sat-pdf" path="sat-pdf/" />
 </paths>

@@ -27,8 +27,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
@@ -87,11 +89,12 @@ fun SatInvoicesScreen(
     LaunchedEffect(Unit) { viewModel.search(fallbackError) }
 
     var downloadErrorMessage by remember { mutableStateOf<String?>(null) }
-    var pendingDownloadInvoice by remember { mutableStateOf<CfdiInvoiceResponse?>(null) }
+    var pendingXmlDownloadInvoice by remember { mutableStateOf<CfdiInvoiceResponse?>(null) }
+    var pendingPdfDownloadInvoice by remember { mutableStateOf<CfdiInvoiceResponse?>(null) }
 
-    val createDocumentLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/xml")) { uri ->
-        val invoice = pendingDownloadInvoice
-        pendingDownloadInvoice = null
+    val createXmlDocumentLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/xml")) { uri ->
+        val invoice = pendingXmlDownloadInvoice
+        pendingXmlDownloadInvoice = null
         if (uri != null && invoice != null) {
             scope.launch {
                 try {
@@ -104,11 +107,39 @@ fun SatInvoicesScreen(
         }
     }
 
-    fun shareInvoice(invoice: CfdiInvoiceResponse) {
+    /** Mismo mecanismo que el XML, apuntando al endpoint de la representación impresa (B13/A14) — la elección de nombre de archivo abre el selector del sistema con mime type PDF. */
+    val createPdfDocumentLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+        val invoice = pendingPdfDownloadInvoice
+        pendingPdfDownloadInvoice = null
+        if (uri != null && invoice != null) {
+            scope.launch {
+                try {
+                    val bytes = viewModel.downloadPdf(invoice.id, downloadError)
+                    context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
+                } catch (e: ApiException) {
+                    downloadErrorMessage = e.message ?: downloadError
+                }
+            }
+        }
+    }
+
+    fun shareInvoiceXml(invoice: CfdiInvoiceResponse) {
         scope.launch {
             try {
                 val bytes = viewModel.downloadXml(invoice.id, downloadError)
                 val intent = shareXmlIntent(context, "${invoice.uuidFiscal}.xml", bytes)
+                context.startActivity(Intent.createChooser(intent, null))
+            } catch (e: ApiException) {
+                downloadErrorMessage = e.message ?: downloadError
+            }
+        }
+    }
+
+    fun shareInvoicePdf(invoice: CfdiInvoiceResponse) {
+        scope.launch {
+            try {
+                val bytes = viewModel.downloadPdf(invoice.id, downloadError)
+                val intent = sharePdfIntent(context, "${invoice.uuidFiscal}.pdf", bytes)
                 context.startActivity(Intent.createChooser(intent, null))
             } catch (e: ApiException) {
                 downloadErrorMessage = e.message ?: downloadError
@@ -165,11 +196,16 @@ fun SatInvoicesScreen(
                     items(state.invoices, key = { it.id }) { invoice ->
                         InvoiceRow(
                             invoice = invoice,
-                            onDownload = {
-                                pendingDownloadInvoice = invoice
-                                createDocumentLauncher.launch("${invoice.uuidFiscal}.xml")
+                            onDownloadPdf = {
+                                pendingPdfDownloadInvoice = invoice
+                                createPdfDocumentLauncher.launch("${invoice.uuidFiscal}.pdf")
                             },
-                            onShare = { shareInvoice(invoice) },
+                            onDownloadXml = {
+                                pendingXmlDownloadInvoice = invoice
+                                createXmlDocumentLauncher.launch("${invoice.uuidFiscal}.xml")
+                            },
+                            onSharePdf = { shareInvoicePdf(invoice) },
+                            onShareXml = { shareInvoiceXml(invoice) },
                         )
                     }
                     if (state.hasMore) {
@@ -268,8 +304,21 @@ private fun SatInvoiceFilters(viewModel: SatInvoicesViewModel, onApply: () -> Un
     }
 }
 
+/**
+ * Cada factura ofrece PDF (representación impresa, B13/A14) y XML (documento
+ * fiscal original) tanto para descargar como para compartir — ambos formatos
+ * se conservan, ninguno reemplaza al otro. Con la fila ya apretada (avatar +
+ * contraparte + monto), se usa un DropdownMenu por acción en vez de sumar más
+ * íconos; el PDF va primero en cada menú por ser la opción más usada.
+ */
 @Composable
-private fun InvoiceRow(invoice: CfdiInvoiceResponse, onDownload: () -> Unit, onShare: () -> Unit) {
+private fun InvoiceRow(
+    invoice: CfdiInvoiceResponse,
+    onDownloadPdf: () -> Unit,
+    onDownloadXml: () -> Unit,
+    onSharePdf: () -> Unit,
+    onShareXml: () -> Unit,
+) {
     val isEmitida = invoice.tipo == CfdiTipo.EMITIDAS
     val counterpartyName = (if (isEmitida) invoice.nombreReceptor else invoice.nombreEmisor)
         ?: (if (isEmitida) invoice.rfcReceptor else invoice.rfcEmisor)
@@ -313,19 +362,51 @@ private fun InvoiceRow(invoice: CfdiInvoiceResponse, onDownload: () -> Unit, onS
             }
         }
         Text(formatCurrency(invoice.total), style = MaterialTheme.typography.titleSmall)
-        IconButton(onClick = onDownload, modifier = Modifier.size(32.dp)) {
-            Icon(
-                Icons.Filled.Download,
-                contentDescription = stringResource(R.string.sat_invoices_download),
-                modifier = Modifier.size(18.dp),
-            )
+
+        var downloadMenuExpanded by remember { mutableStateOf(false) }
+        Box {
+            IconButton(onClick = { downloadMenuExpanded = true }, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    Icons.Filled.Download,
+                    contentDescription = stringResource(R.string.sat_invoices_download),
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            DropdownMenu(expanded = downloadMenuExpanded, onDismissRequest = { downloadMenuExpanded = false }) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.sat_invoices_download_pdf)) },
+                    leadingIcon = { Icon(Icons.Filled.PictureAsPdf, contentDescription = null) },
+                    onClick = { downloadMenuExpanded = false; onDownloadPdf() },
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.sat_invoices_download_xml)) },
+                    leadingIcon = { Icon(Icons.Filled.Description, contentDescription = null) },
+                    onClick = { downloadMenuExpanded = false; onDownloadXml() },
+                )
+            }
         }
-        IconButton(onClick = onShare, modifier = Modifier.size(32.dp)) {
-            Icon(
-                Icons.Filled.Share,
-                contentDescription = stringResource(R.string.sat_invoices_share),
-                modifier = Modifier.size(18.dp),
-            )
+
+        var shareMenuExpanded by remember { mutableStateOf(false) }
+        Box {
+            IconButton(onClick = { shareMenuExpanded = true }, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    Icons.Filled.Share,
+                    contentDescription = stringResource(R.string.sat_invoices_share),
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            DropdownMenu(expanded = shareMenuExpanded, onDismissRequest = { shareMenuExpanded = false }) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.sat_invoices_share_pdf)) },
+                    leadingIcon = { Icon(Icons.Filled.PictureAsPdf, contentDescription = null) },
+                    onClick = { shareMenuExpanded = false; onSharePdf() },
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.sat_invoices_share_xml)) },
+                    leadingIcon = { Icon(Icons.Filled.Description, contentDescription = null) },
+                    onClick = { shareMenuExpanded = false; onShareXml() },
+                )
+            }
         }
     }
 }

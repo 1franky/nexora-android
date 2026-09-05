@@ -301,9 +301,13 @@
     <string name="sat_invoices_empty">No se encontraron facturas con estos filtros.</string>
     <string name="sat_invoices_load_error">No se pudieron cargar las facturas.</string>
     <string name="sat_invoices_load_more">Cargar más</string>
-    <string name="sat_invoices_download">Descargar XML</string>
-    <string name="sat_invoices_share">Compartir XML</string>
-    <string name="sat_invoices_download_error">No se pudo descargar el XML.</string>
-    <string name="sat_invoices_download_success">XML guardado.</string>
+    <string name="sat_invoices_download">Descargar</string>
+    <string name="sat_invoices_share">Compartir</string>
+    <string name="sat_invoices_download_pdf">Descargar PDF</string>
+    <string name="sat_invoices_download_xml">Descargar XML</string>
+    <string name="sat_invoices_share_pdf">Compartir PDF</string>
+    <string name="sat_invoices_share_xml">Compartir XML</string>
+    <string name="sat_invoices_download_error">No se pudo descargar la factura.</string>
+    <string name="sat_invoices_download_success">Factura guardada.</string>
     <string name="sat_invoices_cancelled">Cancelado</string>
 </resources>
