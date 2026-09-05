@@ -52,8 +52,13 @@ android {
         // SAT (androidx.fragment desactualizado, arrastrado transitivamente por biometric,
         // incompatible con el rango de requestCode del selector de archivos moderno) y fix
         // de la sync SAT por rango de fechas (mandaba la fecha sin zona horaria).
-        versionCode = 8
-        versionName = "1.5.1"
+        // 1.5.2: fix de un crash 100% reproducible al entrar a Notificaciones tras vincular
+        // el SAT (NotificationType no tenía los valores SAT_SYNC_COMPLETED/SAT_SYNC_FAILED
+        // que ya manda el backend desde B11) y fix visual en Movimientos: al ver todas las
+        // cuentas, una transferencia resaltaba el nombre de la contraparte junto al monto en
+        // vez de la cuenta dueña de ese monto, dando la impresión de signos invertidos.
+        versionCode = 9
+        versionName = "1.5.2"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
