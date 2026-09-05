@@ -228,7 +228,8 @@ private fun TransactionsContent(
                     TransactionRow(
                         transaction = transaction,
                         accountName = accountNameById[transaction.accountId],
-                        relatedLabel = resolveRelatedLabel(transaction, accountNameById, categoryNameById),
+                        relatedLabel = resolveRelatedLabel(transaction, categoryNameById),
+                        counterAccountName = transaction.counterAccountId?.let { accountNameById[it] },
                         showAccount = state.selectedAccountId == null,
                         onEdit = if (transaction.type in EDITABLE_TYPES) ({ onEdit(transaction) }) else null,
                         onDelete = if (transaction.type in DELETABLE_TYPES) ({ onDelete(transaction) }) else null,
@@ -239,19 +240,18 @@ private fun TransactionsContent(
     }
 }
 
+/** Categoría o comercio de un movimiento propio (INCOME/EXPENSE/CREDIT_CARD_PURCHASE) — null en TRANSFER/CREDIT_CARD_PAYMENT, que en vez de esto usan [counterAccountName] en [TransactionRow]. */
 internal fun resolveRelatedLabel(
     transaction: Transaction,
-    accountNameById: Map<String, String>,
     categoryNameById: Map<String, String>,
-): String? = transaction.categoryId?.let { categoryNameById[it] }
-    ?: transaction.counterAccountId?.let { accountNameById[it] }
-    ?: transaction.merchant
+): String? = transaction.categoryId?.let { categoryNameById[it] } ?: transaction.merchant
 
 @Composable
 internal fun TransactionRow(
     transaction: Transaction,
     accountName: String?,
     relatedLabel: String?,
+    counterAccountName: String?,
     showAccount: Boolean,
     onEdit: (() -> Unit)?,
     onDelete: (() -> Unit)?,
@@ -269,8 +269,28 @@ internal fun TransactionRow(
             Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
         }
         Column(Modifier.weight(1f)) {
-            Text(relatedLabel ?: formatDateShort(transaction.date), style = MaterialTheme.typography.bodyLarge)
-            val subtitle = if (showAccount) accountName else formatDateShort(transaction.date)
+            // Transferencias y pagos de tarjeta (counterAccountName != null, sin categoría propia) no
+            // tienen "de qué se trata" propio: lo que hay es la otra cuenta involucrada. Viendo "todas
+            // las cuentas" (showAccount), el monto con signo pertenece a `accountName` — así que ese
+            // nombre va en negritas junto al monto, y la contraparte pasa a subtítulo con "a"/"de" según
+            // el signo. Antes se mostraba la contraparte en negritas y la cuenta propia como subtítulo:
+            // con dos filas por transferencia (una por cuenta) eso hacía parecer los signos invertidos,
+            // porque la cuenta destacada en cada fila era la que NO tenía ese monto (bug reportado).
+            val direction = counterAccountName?.let {
+                if (transaction.balanceEffect < 0) {
+                    stringResource(R.string.transactions_transfer_to, it)
+                } else {
+                    stringResource(R.string.transactions_transfer_from, it)
+                }
+            }
+            val title = if (counterAccountName != null && showAccount) accountName ?: direction else relatedLabel ?: direction
+            val subtitle = when {
+                counterAccountName != null && showAccount -> direction
+                counterAccountName != null -> formatDateShort(transaction.date)
+                showAccount -> accountName
+                else -> formatDateShort(transaction.date)
+            }
+            Text(title ?: formatDateShort(transaction.date), style = MaterialTheme.typography.bodyLarge)
             if (subtitle != null) {
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

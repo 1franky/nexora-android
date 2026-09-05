@@ -105,7 +105,9 @@ fun MonthExpensesScreen(
                             TransactionRow(
                                 transaction = transaction,
                                 accountName = data.accountNameById[transaction.accountId],
-                                relatedLabel = resolveRelatedLabel(transaction, data.accountNameById, data.categoryNameById),
+                                relatedLabel = resolveRelatedLabel(transaction, data.categoryNameById),
+                                // EXPENSE_TYPES (arriba) nunca incluye TRANSFER/CREDIT_CARD_PAYMENT, así que esta lista no tiene contraparte que mostrar.
+                                counterAccountName = null,
                                 showAccount = true,
                                 onEdit = null,
                                 onDelete = null,
