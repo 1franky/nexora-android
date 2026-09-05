@@ -57,8 +57,12 @@ android {
         // que ya manda el backend desde B11) y fix visual en Movimientos: al ver todas las
         // cuentas, una transferencia resaltaba el nombre de la contraparte junto al monto en
         // vez de la cuenta dueña de ese monto, dando la impresión de signos invertidos.
-        versionCode = 9
-        versionName = "1.5.2"
+        // 1.6.0: descarga y comparte la representación impresa (PDF) de una factura SAT
+        // (A14, backend B13), junto al XML original que ya se podía descargar — el PDF
+        // se genera del lado del backend a partir del mismo XML, no hace falta reconectar
+        // la e.firma ni resincronizar nada.
+        versionCode = 10
+        versionName = "1.6.0"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
