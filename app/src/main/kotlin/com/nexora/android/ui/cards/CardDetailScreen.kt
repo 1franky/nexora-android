@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EventRepeat
@@ -29,6 +30,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,11 +55,19 @@ import com.nexora.android.data.category.CategoryRepository
 import com.nexora.android.data.creditcard.CreditCardRepository
 import com.nexora.android.data.installment.InstallmentPlan
 import com.nexora.android.data.installment.InstallmentRepository
+import com.nexora.android.data.scheduledcharge.ScheduledCharge
+import com.nexora.android.data.scheduledcharge.ScheduledChargeRepository
 import com.nexora.android.data.transaction.Transaction
 import com.nexora.android.data.transaction.TransactionRepository
 import com.nexora.android.data.transaction.TransactionType
 import com.nexora.android.ui.common.formatCurrency
 import com.nexora.android.ui.common.formatDateShort
+import com.nexora.android.ui.scheduledcharges.CancelScheduledChargeDialog
+import com.nexora.android.ui.scheduledcharges.ScheduledBadge
+import com.nexora.android.ui.scheduledcharges.ScheduledChargeFormSheet
+import com.nexora.android.ui.scheduledcharges.ScheduledChargesSectionContent
+import com.nexora.android.ui.scheduledcharges.ScheduledChargesUiState
+import com.nexora.android.ui.scheduledcharges.ScheduledChargesViewModel
 import com.nexora.android.ui.theme.NexoraExtendedTheme
 
 @Composable
@@ -68,6 +78,7 @@ fun CardDetailScreen(
     categoryRepository: CategoryRepository,
     accountRepository: AccountRepository,
     installmentRepository: InstallmentRepository,
+    scheduledChargeRepository: ScheduledChargeRepository,
     onNavigateBack: () -> Unit,
 ) {
     val viewModel: CardDetailViewModel = viewModel(
@@ -78,8 +89,16 @@ fun CardDetailScreen(
     val installmentPlansViewModel: InstallmentPlansViewModel = viewModel(
         factory = viewModelFactory { initializer { InstallmentPlansViewModel(cardId, installmentRepository) } },
     )
+    // Cargos programados (A15) de la cuenta de esta tarjeta — se cargan en cuanto se conoce card.accountId.
+    val scheduledChargesViewModel: ScheduledChargesViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { ScheduledChargesViewModel(scheduledChargeRepository, accountRepository, categoryRepository) }
+        },
+    )
     val fallbackError = stringResource(R.string.cards_detail_not_found)
     val installmentsFallbackError = stringResource(R.string.installments_load_error)
+    val scheduledFallbackError = stringResource(R.string.scheduled_charges_load_error)
+    val scheduledActionFallbackError = stringResource(R.string.scheduled_charges_action_error)
     LaunchedEffect(Unit) {
         viewModel.load(fallbackError)
         installmentPlansViewModel.load(installmentsFallbackError)
@@ -90,7 +109,19 @@ fun CardDetailScreen(
     var showInstallmentPlanSheet by remember { mutableStateOf(false) }
     var editingPurchase by remember { mutableStateOf<Transaction?>(null) }
     var editingPlan by remember { mutableStateOf<InstallmentPlan?>(null) }
+    var creatingScheduledCharge by remember { mutableStateOf(false) }
+    var editingScheduledCharge by remember { mutableStateOf<ScheduledCharge?>(null) }
+    var cancellingScheduledCharge by remember { mutableStateOf<ScheduledCharge?>(null) }
     val state = viewModel.uiState
+    val cardAccountId = (state as? CardDetailUiState.Success)?.card?.accountId
+    LaunchedEffect(cardAccountId) {
+        if (cardAccountId != null) scheduledChargesViewModel.load(cardAccountId, scheduledFallbackError)
+    }
+    // Un cargo programado puede registrar compras al instante (atrasados al crearlo, o el de hoy al reanudarlo).
+    val refreshAfterScheduledChange = {
+        viewModel.refresh(fallbackError)
+        scheduledChargesViewModel.refresh(scheduledFallbackError)
+    }
 
     // Las compras de un plan MSI/MCI se editan desde su propio plan (montos/cuotas), no desde aquí.
     val planTransactionIds = (installmentPlansViewModel.uiState as? InstallmentPlansUiState.Success)
@@ -139,6 +170,21 @@ fun CardDetailScreen(
                         .map { it.id }
                         .toSet(),
                     onEditPurchase = { transaction -> editingPurchase = transaction },
+                    scheduledChargesState = scheduledChargesViewModel.uiState,
+                    busyScheduledChargeId = scheduledChargesViewModel.busyChargeId,
+                    scheduledActionError = scheduledChargesViewModel.actionError,
+                    onRetryScheduledCharges = { cardAccountId?.let { scheduledChargesViewModel.load(it, scheduledFallbackError) } },
+                    onNewScheduledCharge = { creatingScheduledCharge = true },
+                    onPauseScheduledCharge = { charge ->
+                        scheduledChargesViewModel.pause(charge.id, scheduledActionFallbackError, scheduledFallbackError)
+                    },
+                    onResumeScheduledCharge = { charge ->
+                        scheduledChargesViewModel.resume(charge.id, scheduledActionFallbackError, scheduledFallbackError) {
+                            viewModel.refresh(fallbackError)
+                        }
+                    },
+                    onEditScheduledCharge = { charge -> editingScheduledCharge = charge },
+                    onCancelScheduledCharge = { charge -> cancellingScheduledCharge = charge },
                 )
             }
         }
@@ -210,6 +256,51 @@ fun CardDetailScreen(
             )
         }
 
+        val scheduledState = scheduledChargesViewModel.uiState
+        if (scheduledState is ScheduledChargesUiState.Success && state is CardDetailUiState.Success) {
+            if (creatingScheduledCharge) {
+                ScheduledChargeFormSheet(
+                    existing = null,
+                    initialAccountId = state.card.accountId,
+                    accounts = scheduledState.accounts,
+                    categories = scheduledState.categories,
+                    scheduledChargeRepository = scheduledChargeRepository,
+                    categoryRepository = categoryRepository,
+                    onDismiss = { creatingScheduledCharge = false },
+                    onSaved = {
+                        creatingScheduledCharge = false
+                        refreshAfterScheduledChange()
+                    },
+                )
+            }
+            editingScheduledCharge?.let { charge ->
+                ScheduledChargeFormSheet(
+                    existing = charge,
+                    initialAccountId = null,
+                    accounts = scheduledState.accounts,
+                    categories = scheduledState.categories,
+                    scheduledChargeRepository = scheduledChargeRepository,
+                    categoryRepository = categoryRepository,
+                    onDismiss = { editingScheduledCharge = null },
+                    onSaved = {
+                        editingScheduledCharge = null
+                        refreshAfterScheduledChange()
+                    },
+                )
+            }
+        }
+
+        cancellingScheduledCharge?.let { charge ->
+            CancelScheduledChargeDialog(
+                charge = charge,
+                onConfirm = {
+                    cancellingScheduledCharge = null
+                    scheduledChargesViewModel.cancel(charge.id, scheduledActionFallbackError, scheduledFallbackError)
+                },
+                onDismiss = { cancellingScheduledCharge = null },
+            )
+        }
+
         val planToEdit = editingPlan
         if (planToEdit != null && state is CardDetailUiState.Success) {
             EditInstallmentPlanSheet(
@@ -242,6 +333,15 @@ private fun CardDetailContent(
     onEditPlan: (InstallmentPlan) -> Unit,
     editablePurchaseIds: Set<String>,
     onEditPurchase: (Transaction) -> Unit,
+    scheduledChargesState: ScheduledChargesUiState,
+    busyScheduledChargeId: String?,
+    scheduledActionError: String?,
+    onRetryScheduledCharges: () -> Unit,
+    onNewScheduledCharge: () -> Unit,
+    onPauseScheduledCharge: (ScheduledCharge) -> Unit,
+    onResumeScheduledCharge: (ScheduledCharge) -> Unit,
+    onEditScheduledCharge: (ScheduledCharge) -> Unit,
+    onCancelScheduledCharge: (ScheduledCharge) -> Unit,
 ) {
     val card = state.card
     val usage = if (card.creditLimit > 0) (card.currentDebt / card.creditLimit).coerceIn(0.0, 1.0).toFloat() else 0f
@@ -306,6 +406,30 @@ private fun CardDetailContent(
                 onEditPlan = onEditPlan,
             )
 
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 28.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(stringResource(R.string.scheduled_charges_title), style = MaterialTheme.typography.titleMedium)
+                if (scheduledChargesState is ScheduledChargesUiState.Success) {
+                    TextButton(onClick = onNewScheduledCharge) {
+                        Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.height(18.dp))
+                        Text(stringResource(R.string.scheduled_charges_new_short), modifier = Modifier.padding(start = 4.dp))
+                    }
+                }
+            }
+            ScheduledChargesSectionContent(
+                state = scheduledChargesState,
+                busyChargeId = busyScheduledChargeId,
+                actionError = scheduledActionError,
+                onRetry = onRetryScheduledCharges,
+                onPause = onPauseScheduledCharge,
+                onResume = onResumeScheduledCharge,
+                onEdit = onEditScheduledCharge,
+                onCancel = onCancelScheduledCharge,
+            )
+
             Text(
                 stringResource(R.string.cards_detail_movements),
                 style = MaterialTheme.typography.titleMedium,
@@ -358,7 +482,10 @@ private fun CardTransactionRow(transaction: Transaction, categoryNameById: Map<S
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(transaction.merchant ?: typeLabel, style = MaterialTheme.typography.bodyLarge)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(transaction.merchant ?: typeLabel, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
+                if (transaction.scheduledChargeId != null) ScheduledBadge()
+            }
             val subtitle = listOfNotNull(
                 formatDateShort(transaction.date),
                 transaction.categoryId?.let { categoryNameById[it] },

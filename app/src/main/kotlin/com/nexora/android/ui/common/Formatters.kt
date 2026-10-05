@@ -24,6 +24,18 @@ fun formatDateShort(isoDate: String): String = try {
     isoDate
 }
 
+private val dateMediumFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("es-MX"))
+
+/**
+ * "2026-10-15" -> "15 oct 2026" (A15, cargos programados): como [formatDateShort] pero con
+ * año — un cargo anual o una fecha de inicio/fin pueden caer en otro año.
+ */
+fun formatDateMedium(isoDate: String): String = try {
+    LocalDate.parse(isoDate).format(dateMediumFormatter).replace(".", "")
+} catch (_: Exception) {
+    isoDate
+}
+
 private val dateTimeShortFormatter = DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm", Locale.forLanguageTag("es-MX"))
 
 /**
