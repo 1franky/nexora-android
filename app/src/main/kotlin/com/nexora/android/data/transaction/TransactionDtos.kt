@@ -27,6 +27,12 @@ data class Transaction(
     val categoryId: String? = null,
     val counterAccountId: String? = null,
     val merchant: String? = null,
+    /**
+     * B14 (nexora-api): id del cargo programado que generó este movimiento, o null si se
+     * capturó a mano. Campo aditivo con default — un backend anterior a B14 simplemente no lo
+     * manda, y el Json de AppContainer ya ignora campos desconocidos en sentido contrario.
+     */
+    val scheduledChargeId: String? = null,
 )
 
 @Serializable

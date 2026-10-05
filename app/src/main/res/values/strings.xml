@@ -213,6 +213,8 @@
     <string name="notifications_empty">No tienes notificaciones por ahora.</string>
     <string name="notifications_load_error">No se pudieron cargar tus notificaciones.</string>
     <string name="notifications_unread">No leída</string>
+    <string name="notifications_type_scheduled_charge_posted">Cargo programado registrado</string>
+    <string name="notifications_type_scheduled_charge_failed">Cargo programado pausado por un error</string>
 
     <!-- Sincronización offline (A8) -->
     <string name="sync_offline_banner">Sin conexión — tus cambios se guardan y se sincronizan solos.</string>
