@@ -61,8 +61,12 @@ android {
         // (A14, backend B13), junto al XML original que ya se podía descargar — el PDF
         // se genera del lado del backend a partir del mismo XML, no hace falta reconectar
         // la e.firma ni resincronizar nada.
-        versionCode = 10
-        versionName = "1.6.0"
+        // 1.7.0: cargos programados (A15, backend B14 + web W13) — suscripciones y
+        // domiciliaciones mensuales/anuales que el backend registra solas en tarjetas
+        // (compra) o débito/ahorro (gasto), con distintivo «Programado» en movimientos;
+        // además, un tipo de aviso desconocido ya no tumba la pantalla de Avisos.
+        versionCode = 11
+        versionName = "1.7.0"
 
         // URL pública real de nexora-api (VPS). No hay sabor "local" todavía —
         // se agrega cuando haga falta apuntar a un backend en desarrollo.
