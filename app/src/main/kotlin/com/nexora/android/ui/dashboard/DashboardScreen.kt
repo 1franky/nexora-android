@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.EventRepeat
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.SwapHoriz
@@ -66,6 +67,7 @@ fun DashboardScreen(
     onNavigateToMonthExpenses: () -> Unit,
     onNavigateToQuincena: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToScheduledCharges: () -> Unit,
 ) {
     val viewModel: DashboardViewModel = viewModel(
         factory = viewModelFactory { initializer { DashboardViewModel(dashboardRepository, userRepository, authRepository) } },
@@ -98,6 +100,7 @@ fun DashboardScreen(
             onNavigateToMonthExpenses = onNavigateToMonthExpenses,
             onNavigateToQuincena = onNavigateToQuincena,
             onNavigateToSettings = onNavigateToSettings,
+            onNavigateToScheduledCharges = onNavigateToScheduledCharges,
         )
     }
 }
@@ -113,6 +116,7 @@ private fun DashboardContent(
     onNavigateToMonthExpenses: () -> Unit,
     onNavigateToQuincena: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToScheduledCharges: () -> Unit,
 ) {
     val dashboard = data.dashboard
     val quincenaTotal = remember(dashboard.upcomingPayments) {
@@ -238,6 +242,13 @@ private fun DashboardContent(
                 stringResource(R.string.dashboard_action_pay),
                 primary = false,
                 onClick = onNavigateToCards,
+            )
+            // A15: suscripciones/domiciliaciones que se registran solas cada mes/año.
+            QuickActionChip(
+                Icons.Filled.EventRepeat,
+                stringResource(R.string.dashboard_action_scheduled_charges),
+                primary = false,
+                onClick = onNavigateToScheduledCharges,
             )
         }
 

@@ -56,6 +56,15 @@ sealed class NexoraDestination(val route: String) {
     /** Resumen de "quincena" del dashboard: pagos próximos que caen en la quincena actual. */
     data object Quincena : NexoraDestination("quincena")
 
+    /**
+     * Cargos programados (A15). `accountId` opcional (mismo patrón que [Accounts]): vacío =
+     * todos los del usuario (acceso desde el dashboard o un aviso), con id = solo los de esa
+     * cuenta (acceso desde Cuentas), y el alta llega con esa cuenta preseleccionada.
+     */
+    data object ScheduledCharges : NexoraDestination("scheduled-charges?accountId={accountId}") {
+        fun routeFor(accountId: String? = null) = "scheduled-charges?accountId=${accountId.orEmpty()}"
+    }
+
     /** Detalle de una tarjeta — no es un destino fijo, se arma con el id. */
     data object CardDetail : NexoraDestination("cards/{cardId}") {
         fun routeFor(cardId: String) = "cards/$cardId"

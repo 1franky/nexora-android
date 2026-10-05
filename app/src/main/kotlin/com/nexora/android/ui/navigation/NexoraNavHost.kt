@@ -40,6 +40,7 @@ import com.nexora.android.ui.register.RegisterScreen
 import com.nexora.android.ui.resetpassword.ResetPasswordScreen
 import com.nexora.android.ui.sat.SatConnectionScreen
 import com.nexora.android.ui.sat.SatInvoicesScreen
+import com.nexora.android.ui.scheduledcharges.ScheduledChargesScreen
 import com.nexora.android.ui.settings.SettingsScreen
 import com.nexora.android.ui.transactions.MovementKind
 import com.nexora.android.ui.transactions.TransactionsScreen
@@ -234,6 +235,7 @@ private fun AuthenticatedAwareNavHost(
                         onNavigateToMonthExpenses = { navController.navigate(NexoraDestination.MonthExpenses.route) },
                         onNavigateToQuincena = { navController.navigate(NexoraDestination.Quincena.route) },
                         onNavigateToSettings = { navController.navigate(NexoraDestination.Settings.route) },
+                        onNavigateToScheduledCharges = { navController.navigate(NexoraDestination.ScheduledCharges.routeFor()) },
                     )
                 }
                 composable(NexoraDestination.Settings.route) {
@@ -266,6 +268,22 @@ private fun AuthenticatedAwareNavHost(
                         accountRepository = container.accountRepository,
                         onNavigateBack = { navController.popBackStack() },
                         filterType = filterType,
+                        onNavigateToScheduledCharges = { accountId ->
+                            navController.navigate(NexoraDestination.ScheduledCharges.routeFor(accountId))
+                        },
+                    )
+                }
+                composable(
+                    route = NexoraDestination.ScheduledCharges.route,
+                    arguments = listOf(navArgument("accountId") { type = NavType.StringType; defaultValue = "" }),
+                ) { backStackEntry ->
+                    val accountId = backStackEntry.arguments?.getString("accountId")?.takeIf { it.isNotBlank() }
+                    ScheduledChargesScreen(
+                        accountId = accountId,
+                        scheduledChargeRepository = container.scheduledChargeRepository,
+                        accountRepository = container.accountRepository,
+                        categoryRepository = container.categoryRepository,
+                        onNavigateBack = { navController.popBackStack() },
                     )
                 }
                 composable(NexoraDestination.UpcomingPayments.route) {
@@ -330,12 +348,16 @@ private fun AuthenticatedAwareNavHost(
                             categoryRepository = container.categoryRepository,
                             accountRepository = container.accountRepository,
                             installmentRepository = container.installmentRepository,
+                            scheduledChargeRepository = container.scheduledChargeRepository,
                             onNavigateBack = { navController.popBackStack() },
                         )
                     }
                 }
                 composable(NexoraDestination.Notifications.route) {
-                    NotificationsScreen(notificationRepository = container.notificationRepository)
+                    NotificationsScreen(
+                        notificationRepository = container.notificationRepository,
+                        onOpenScheduledCharges = { navController.navigate(NexoraDestination.ScheduledCharges.routeFor()) },
+                    )
                 }
             }
         }

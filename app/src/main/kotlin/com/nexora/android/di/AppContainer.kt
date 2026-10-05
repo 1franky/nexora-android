@@ -25,6 +25,8 @@ import com.nexora.android.data.offline.OfflineCache
 import com.nexora.android.data.offline.OfflineDatabase
 import com.nexora.android.data.sat.SatApi
 import com.nexora.android.data.sat.SatRepository
+import com.nexora.android.data.scheduledcharge.ScheduledChargeApi
+import com.nexora.android.data.scheduledcharge.ScheduledChargeRepository
 import com.nexora.android.data.transaction.TransactionApi
 import com.nexora.android.data.transaction.TransactionRepository
 import com.nexora.android.data.user.UserRepository
@@ -99,6 +101,9 @@ class AppContainer(context: Context) {
     private val categoryApi: CategoryApi = retrofit.create()
     private val notificationApi: NotificationApi = retrofit.create()
 
+    // Sin escrituras encoladas (ver ScheduledChargeRepository): SyncWorker no la necesita.
+    private val scheduledChargeApi: ScheduledChargeApi = retrofit.create()
+
     // Públicas (no solo `private val`): SyncWorker las necesita para reintentar
     // escrituras encoladas fuera de cualquier repositorio (ver NexoraWorkerFactory).
     val accountApi: AccountApi = retrofit.create()
@@ -143,4 +148,5 @@ class AppContainer(context: Context) {
     val installmentRepository = InstallmentRepository(installmentApi, offlineCache, pendingOperationDao, syncScheduler, json)
     val notificationRepository = NotificationRepository(notificationApi)
     val satRepository = SatRepository(satApi, offlineCache, pendingOperationDao, syncScheduler, json)
+    val scheduledChargeRepository = ScheduledChargeRepository(scheduledChargeApi, offlineCache)
 }

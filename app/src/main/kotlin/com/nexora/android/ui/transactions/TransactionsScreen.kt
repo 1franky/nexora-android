@@ -58,6 +58,7 @@ import com.nexora.android.data.transaction.TransactionRepository
 import com.nexora.android.data.transaction.TransactionType
 import com.nexora.android.ui.common.formatCurrency
 import com.nexora.android.ui.common.formatDateShort
+import com.nexora.android.ui.scheduledcharges.ScheduledBadge
 import com.nexora.android.ui.theme.NexoraExtendedTheme
 
 /** Editar solo aplica a lo que la propia hoja "Nuevo movimiento" crea; transferencias se editan borrando/recreando. */
@@ -290,7 +291,15 @@ internal fun TransactionRow(
                 showAccount -> accountName
                 else -> formatDateShort(transaction.date)
             }
-            Text(title ?: formatDateShort(transaction.date), style = MaterialTheme.typography.bodyLarge)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    title ?: formatDateShort(transaction.date),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                // A15: generado por un cargo programado (B14) — se edita/borra igual que cualquier otro.
+                if (transaction.scheduledChargeId != null) ScheduledBadge()
+            }
             if (subtitle != null) {
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

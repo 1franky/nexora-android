@@ -35,4 +35,12 @@ class FormattersTest {
     fun `formatDateShort con fecha invalida devuelve el string original`() {
         assertEquals("no-es-una-fecha", formatDateShort("no-es-una-fecha"))
     }
+
+    @Test
+    fun `formatDateMedium incluye el ano y no lleva punto`() {
+        val result = formatDateMedium("2027-03-03")
+        assertTrue("debería incluir día y año: $result", result.contains("3") && result.contains("2027"))
+        assertFalse(result.contains("."))
+        assertEquals("no-es-una-fecha", formatDateMedium("no-es-una-fecha"))
+    }
 }

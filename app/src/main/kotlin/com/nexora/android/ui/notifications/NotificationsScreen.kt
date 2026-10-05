@@ -20,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.EventRepeat
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,7 +48,11 @@ import com.nexora.android.data.notification.NotificationType
 import com.nexora.android.ui.common.formatDateShort
 
 @Composable
-fun NotificationsScreen(notificationRepository: NotificationRepository) {
+fun NotificationsScreen(
+    notificationRepository: NotificationRepository,
+    /** A15: tocar un aviso de cargo programado lleva a la pantalla de cargos (p. ej. para reanudar uno pausado). */
+    onOpenScheduledCharges: () -> Unit = {},
+) {
     val viewModel: NotificationsViewModel = viewModel(
         factory = viewModelFactory { initializer { NotificationsViewModel(notificationRepository) } },
     )
@@ -118,6 +124,7 @@ fun NotificationsScreen(notificationRepository: NotificationRepository) {
                                     if (notification.status == NotificationStatus.UNREAD) {
                                         viewModel.markAsRead(notification.id, fallbackError)
                                     }
+                                    if (notification.type in SCHEDULED_CHARGE_TYPES) onOpenScheduledCharges()
                                 },
                             )
                         }
@@ -128,22 +135,35 @@ fun NotificationsScreen(notificationRepository: NotificationRepository) {
     }
 }
 
+private val SCHEDULED_CHARGE_TYPES = setOf(NotificationType.SCHEDULED_CHARGE_POSTED, NotificationType.SCHEDULED_CHARGE_FAILED)
+
 private fun iconFor(type: NotificationType): ImageVector = when (type) {
     NotificationType.INSTALLMENT_DUE -> Icons.Outlined.CalendarMonth
     NotificationType.PAYMENT_DUE, NotificationType.PAYMENT_DUE_SOON, NotificationType.PAYMENT_OVERDUE -> Icons.Outlined.CreditCard
-    NotificationType.BUDGET_EXCEEDED, NotificationType.UNUSUAL_EXPENSE -> Icons.Outlined.Notifications
+    NotificationType.BUDGET_EXCEEDED, NotificationType.UNUSUAL_EXPENSE, NotificationType.UNKNOWN -> Icons.Outlined.Notifications
     NotificationType.SAT_SYNC_COMPLETED, NotificationType.SAT_SYNC_FAILED -> Icons.Outlined.Description
+    NotificationType.SCHEDULED_CHARGE_POSTED -> Icons.Outlined.EventRepeat
+    NotificationType.SCHEDULED_CHARGE_FAILED -> Icons.Outlined.EventBusy
+}
+
+/** Descripción accesible del ícono — el título/mensaje ya vienen redactados del backend. */
+@Composable
+private fun iconDescriptionFor(type: NotificationType): String? = when (type) {
+    NotificationType.SCHEDULED_CHARGE_POSTED -> stringResource(R.string.notifications_type_scheduled_charge_posted)
+    NotificationType.SCHEDULED_CHARGE_FAILED -> stringResource(R.string.notifications_type_scheduled_charge_failed)
+    else -> null
 }
 
 @Composable
 private fun NotificationRow(notification: Notification, onClick: () -> Unit) {
     val unread = notification.status == NotificationStatus.UNREAD
+    val failed = notification.type == NotificationType.SCHEDULED_CHARGE_FAILED
     val contentColor = if (unread) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = unread, onClick = onClick)
+            .clickable(enabled = unread || notification.type in SCHEDULED_CHARGE_TYPES, onClick = onClick)
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
             .let {
                 if (unread) it.border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(20.dp)) else it
@@ -160,8 +180,12 @@ private fun NotificationRow(notification: Notification, onClick: () -> Unit) {
         ) {
             Icon(
                 iconFor(notification.type),
-                contentDescription = null,
-                tint = if (unread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                contentDescription = iconDescriptionFor(notification.type),
+                tint = when {
+                    failed && unread -> MaterialTheme.colorScheme.error
+                    unread -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
                 modifier = Modifier.size(18.dp),
             )
         }

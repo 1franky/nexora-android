@@ -50,6 +50,7 @@
     <string name="dashboard_action_transfer">Transferir</string>
     <string name="dashboard_action_purchase">Compra</string>
     <string name="dashboard_action_pay">Pagar</string>
+    <string name="dashboard_action_scheduled_charges">Programados</string>
     <string name="dashboard_load_error">No se pudo cargar el dashboard.</string>
 
     <!-- Resúmenes del dashboard (accesos de Próximo pago / Gastos del mes / Quincena) -->
@@ -213,6 +214,67 @@
     <string name="notifications_empty">No tienes notificaciones por ahora.</string>
     <string name="notifications_load_error">No se pudieron cargar tus notificaciones.</string>
     <string name="notifications_unread">No leída</string>
+    <string name="notifications_type_scheduled_charge_posted">Cargo programado registrado</string>
+    <string name="notifications_type_scheduled_charge_failed">Cargo programado pausado por un error</string>
+
+    <!-- Cargos programados (A15) -->
+    <string name="scheduled_charges_title">Cargos programados</string>
+    <string name="scheduled_charges_new">Nuevo cargo programado</string>
+    <string name="scheduled_charges_new_short">Nuevo</string>
+    <string name="scheduled_charges_empty">Todavía no tienes cargos programados. Agrega tus suscripciones y domiciliaciones (Netflix, gimnasio, seguros…) y se registrarán solas cada mes o cada año.</string>
+    <string name="scheduled_charges_account_empty">Esta cuenta no tiene cargos programados.</string>
+    <string name="scheduled_charges_load_error">No se pudieron cargar los cargos programados.</string>
+    <string name="scheduled_charges_action_error">No se pudo completar la acción. Revisa tu conexión e intenta de nuevo.</string>
+    <string name="scheduled_charges_save_error">No se pudo guardar el cargo programado. Revisa tu conexión e intenta de nuevo.</string>
+    <string name="scheduled_charges_badge">Programado</string>
+    <string name="scheduled_charges_status_active">Activo</string>
+    <string name="scheduled_charges_status_paused">Pausado</string>
+    <string name="scheduled_charges_status_finished">Terminado</string>
+    <string name="scheduled_charges_status_cancelled">Cancelado</string>
+    <string name="scheduled_charges_frequency_monthly">Mensual</string>
+    <string name="scheduled_charges_frequency_yearly">Anual</string>
+    <!-- %1$d = día del mes; %2$s = nombre del mes en minúsculas -->
+    <string name="scheduled_charges_frequency_monthly_desc">Cada día %1$d</string>
+    <string name="scheduled_charges_frequency_yearly_desc">Cada %1$d de %2$s</string>
+    <string name="scheduled_charges_next_run">Próximo cargo: %1$s</string>
+    <string name="scheduled_charges_last_run">Último cargo: %1$s</string>
+    <string name="scheduled_charges_ends_on">Termina: %1$s</string>
+    <string name="scheduled_charges_action_pause">Pausar</string>
+    <string name="scheduled_charges_action_resume">Reanudar</string>
+    <string name="scheduled_charges_action_cancel">Cancelar</string>
+    <string name="scheduled_charges_cancel_title">Cancelar cargo programado</string>
+    <string name="scheduled_charges_cancel_message">«%1$s» dejará de registrarse. Los movimientos que ya generó se conservan. Esta acción no se puede deshacer.</string>
+    <string name="scheduled_charges_cancel_confirm">Cancelar cargo</string>
+    <string name="scheduled_charges_dialog_title">Nuevo cargo programado</string>
+    <string name="scheduled_charges_edit_title">Editar cargo programado</string>
+    <string name="scheduled_charges_edit_forward_only_hint">Los cambios solo aplican a los próximos cargos; los movimientos ya registrados no se modifican.</string>
+    <string name="scheduled_charges_dialog_account">Cuenta o tarjeta</string>
+    <string name="scheduled_charges_dialog_account_hint">En tarjeta se registra como compra; en débito o ahorro, como gasto.</string>
+    <string name="scheduled_charges_dialog_no_accounts">Necesitas una cuenta activa de débito, ahorro o tarjeta de crédito para programar un cargo.</string>
+    <string name="scheduled_charges_dialog_name">Nombre</string>
+    <string name="scheduled_charges_dialog_name_hint">Ej. Disney+, gimnasio, seguro del auto</string>
+    <string name="scheduled_charges_dialog_amount">Monto</string>
+    <string name="scheduled_charges_dialog_category">Categoría</string>
+    <string name="scheduled_charges_dialog_frequency">Frecuencia</string>
+    <string name="scheduled_charges_dialog_day">Día del mes</string>
+    <string name="scheduled_charges_dialog_day_hint">Del 1 al 31</string>
+    <string name="scheduled_charges_dialog_day_invalid">Debe estar entre 1 y 31.</string>
+    <string name="scheduled_charges_dialog_month">Mes</string>
+    <string name="scheduled_charges_dialog_last_day_note">Si el mes no tiene ese día, se cargará el último día del mes.</string>
+    <string name="scheduled_charges_dialog_start_date">Fecha de inicio</string>
+    <string name="scheduled_charges_dialog_start_date_locked">Este cargo ya generó movimientos: la fecha de inicio no se puede cambiar.</string>
+    <string name="scheduled_charges_dialog_end_date">Fecha de fin (opcional)</string>
+    <string name="scheduled_charges_dialog_no_end_date">Sin fecha de fin</string>
+    <string name="scheduled_charges_dialog_end_date_invalid">Debe ser igual o posterior a la fecha de inicio.</string>
+    <string name="scheduled_charges_dialog_clear_end_date">Quitar fecha de fin</string>
+    <string name="scheduled_charges_dialog_pick_date">Aceptar</string>
+    <string name="scheduled_charges_dialog_description">Descripción (opcional)</string>
+    <string name="scheduled_charges_dialog_create">Programar cargo</string>
+    <plurals name="scheduled_charges_overdue_warning">
+        <item quantity="one">Se registrará %1$d cargo atrasado en cuanto guardes.</item>
+        <item quantity="many">Se registrarán %1$d cargos atrasados en cuanto guardes.</item>
+        <item quantity="other">Se registrarán %1$d cargos atrasados en cuanto guardes.</item>
+    </plurals>
 
     <!-- Sincronización offline (A8) -->
     <string name="sync_offline_banner">Sin conexión — tus cambios se guardan y se sincronizan solos.</string>

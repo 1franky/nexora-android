@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EventRepeat
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,6 +56,8 @@ fun AccountsScreen(
     onNavigateBack: () -> Unit,
     /** Si no es null, solo se listan cuentas de este tipo — usado por el acceso "Disponible" del dashboard (solo débito). */
     filterType: AccountType? = null,
+    /** A15: cargos programados de una cuenta (pantalla filtrada, alta con la cuenta preseleccionada). */
+    onNavigateToScheduledCharges: (accountId: String) -> Unit = {},
 ) {
     val viewModel: AccountsViewModel = viewModel(
         factory = viewModelFactory { initializer { AccountsViewModel(accountRepository) } },
@@ -145,7 +148,15 @@ fun AccountsScreen(
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
                                 ) {
                                     items(filteredAccounts, key = { it.id }) { account ->
-                                        AccountCard(account, onEditClick = { editingAccount = account })
+                                        AccountCard(
+                                            account,
+                                            onEditClick = { editingAccount = account },
+                                            onScheduledChargesClick = if (supportsScheduledCharges(account)) {
+                                                { onNavigateToScheduledCharges(account.id) }
+                                            } else {
+                                                null
+                                            },
+                                        )
                                     }
                                 }
                             }
@@ -181,7 +192,7 @@ fun AccountsScreen(
 }
 
 @Composable
-private fun AccountCard(account: Account, onEditClick: () -> Unit) {
+private fun AccountCard(account: Account, onEditClick: () -> Unit, onScheduledChargesClick: (() -> Unit)?) {
     val archived = account.status == AccountStatus.ARCHIVED
     Column(
         modifier = Modifier
@@ -209,6 +220,11 @@ private fun AccountCard(account: Account, onEditClick: () -> Unit) {
                             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                     )
+                }
+                if (onScheduledChargesClick != null) {
+                    IconButton(onClick = onScheduledChargesClick) {
+                        Icon(Icons.Filled.EventRepeat, contentDescription = stringResource(R.string.scheduled_charges_title))
+                    }
                 }
                 IconButton(onClick = onEditClick) {
                     Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.action_edit))
@@ -246,6 +262,13 @@ private fun AccountCard(account: Account, onEditClick: () -> Unit) {
         }
     }
 }
+
+/**
+ * AFORE/PPR no admiten cargos programados (nexora-api, B14). Las archivadas tampoco aceptan
+ * altas, pero se deja entrar si ya tienen cargos — para verlos (p. ej. pausados por el archivado).
+ */
+private fun supportsScheduledCharges(account: Account): Boolean =
+    account.type != AccountType.AFORE && account.type != AccountType.PPR
 
 @Composable
 fun accountTypeLabel(type: AccountType): String = when (type) {
